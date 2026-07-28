@@ -39,7 +39,6 @@ The following file types are supported via the library API (`StandaloneFormatter
 
 ```bash
 git clone <repository-url>
-cd vscode-idea-code-formatter
 
 # Download IntelliJ IDEA and build the formatter
 ./gradlew build
@@ -64,16 +63,6 @@ Using the wrapper script:
 
 `.git`, `build`, `target`, `out`, and `node_modules` directories are skipped
 automatically, at any depth.
-
-Or run directly with Java:
-
-```bash
-java --add-opens java.base/java.lang=ALL-UNNAMED \
-     --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
-     --add-opens java.base/java.io=ALL-UNNAMED \
-     --add-opens java.base/java.util=ALL-UNNAMED \
-     -jar build/libs/vscode-idea-code-formatter.jar src/main/java
-```
 
 ### Custom Code Style
 
@@ -120,10 +109,8 @@ public class Example {
 
 | Task           | Description                                  |
 |----------------|----------------------------------------------|
-| `build`        | Build JAR and VSCode extension               |
+| `build`        | Build JAR                                    |
 | `fatJar`       | Create the fat JAR with all dependencies     |
-| `buildVscode`  | Build VSCode extension only                  |
-| `vscodePackage`| Package VSCode extension as .vsix            |
 | `setupIde`     | Download and extract IntelliJ IDEA           |
 | `cleanIde`     | Remove downloaded IntelliJ IDEA JARs         |
 | `run`          | Run the formatter (use `--args` for options) |
@@ -131,7 +118,7 @@ public class Example {
 ### Build Examples
 
 ```bash
-# Full build (JAR + VSCode extension)
+# Full build (JAR)
 ./gradlew build
 
 # Build only the fat JAR
@@ -151,7 +138,6 @@ public class Example {
 ## Project Architecture
 
 ```
-vscode-idea-code-formatter/
 ├── build.gradle.kts              # Build configuration with IDE download tasks
 ├── src/main/java/
 │   └── com/intellij/formatter/
@@ -178,7 +164,6 @@ vscode-idea-code-formatter/
 │           └── psi/                            # PSI (code model) services
 ├── scripts/
 │   └── idea-format                             # Shell wrapper script
-├── vscode-extension/                           # VSCode extension source
 └── ide/                                        # Downloaded IntelliJ JARs (gitignored)
 ```
 
@@ -192,81 +177,6 @@ The formatter creates a minimal IntelliJ Platform environment that runs headless
 4. **Formatting**: Executes IntelliJ's formatting model to produce formatted output
 
 This approach ensures **identical formatting results** to IntelliJ IDEA while running without a GUI.
-
-## VSCode Integration
-
-### VSCode Extension
-
-A ready-to-use VSCode extension is built automatically:
-
-> **Known issue**: The bundled extension currently does **not** work with this
-> version of the CLI. It still invokes the formatter JAR using the old
-> single-file `--lines`/`--style` contract, which the directory-only CLI no
-> longer accepts — every format command from the extension will fail with
-> exit code `2`. See [CHANGELOG.md](CHANGELOG.md) for details; fixing the
-> extension is tracked as separate follow-up work.
-
-```bash
-# Build both JAR and VSCode extension
-./gradlew build
-
-# Install the extension
-code --install-extension vscode-extension/intellij-formatter-0.1.0.vsix
-```
-
-The extension provides:
-- Format on demand (`Shift+Alt+F`)
-- Format selection (`Ctrl+K Ctrl+F`)
-- Per-language enable/disable settings
-- Custom code style support via settings
-
-See [vscode-extension/README.md](vscode-extension/README.md) for detailed extension documentation.
-
-### Manual Integration with Tasks
-
-The formatter now operates on entire directories, so this task will format all `.java` files in your workspace rather than just a single file:
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Format with IntelliJ",
-      "type": "shell",
-      "command": "java",
-      "args": [
-        "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-        "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
-        "--add-opens", "java.base/java.io=ALL-UNNAMED",
-        "--add-opens", "java.base/java.util=ALL-UNNAMED",
-        "-jar", "${workspaceFolder}/build/libs/vscode-idea-code-formatter.jar",
-        "${workspaceFolder}"
-      ],
-      "problemMatcher": []
-    }
-  ]
-}
-```
-
-## CI/CD Integration
-
-Example GitHub Actions workflow:
-
-```yaml
-- name: Setup Java
-  uses: actions/setup-java@v3
-  with:
-    java-version: '21'
-    distribution: 'temurin'
-
-- name: Check Formatting
-  run: |
-    java --add-opens java.base/java.lang=ALL-UNNAMED \
-         --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
-         --add-opens java.base/java.io=ALL-UNNAMED \
-         --add-opens java.base/java.util=ALL-UNNAMED \
-         -jar vscode-idea-code-formatter.jar --check src/main/java
-```
 
 ## Troubleshooting
 

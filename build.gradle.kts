@@ -444,7 +444,6 @@ tasks.named("compileJava") {
 
 tasks.build {
     dependsOn("fatJar")
-    dependsOn("buildVscode")
 }
 
 tasks.register<Delete>("cleanIde") {
@@ -455,73 +454,4 @@ tasks.register<Delete>("cleanIde") {
 
 tasks.named<Delete>("clean") {
     delete(ideExtractDir)
-    delete("vscode-extension/node_modules")
-    delete("vscode-extension/out")
-    delete("vscode-extension/formatter")
-    delete(fileTree("vscode-extension") { include("*.vsix") })
-}
-
-val vscodeDir = layout.projectDirectory.dir("vscode-extension")
-
-tasks.register<Exec>("npmInstall") {
-    group = "vscode"
-    description = "Install npm dependencies for VSCode extension"
-    workingDir = vscodeDir.asFile
-    commandLine = listOf("npm", "install")
-
-    inputs.file(vscodeDir.file("package.json"))
-    outputs.dir(vscodeDir.dir("node_modules"))
-
-    onlyIf {
-        !vscodeDir.dir("node_modules").asFile.exists()
-    }
-}
-
-tasks.register<Exec>("npmCompile") {
-    group = "vscode"
-    description = "Compile TypeScript for VSCode extension"
-    workingDir = vscodeDir.asFile
-    commandLine = listOf("npm", "run", "compile")
-    dependsOn("npmInstall")
-
-    inputs.dir(vscodeDir.dir("src"))
-    inputs.file(vscodeDir.file("tsconfig.json"))
-    outputs.dir(vscodeDir.dir("out"))
-}
-
-tasks.register<Copy>("bundleJar") {
-    group = "vscode"
-    description = "Bundle formatter JAR into VSCode extension"
-    dependsOn("fatJar")
-
-    from(layout.buildDirectory.file("libs/vscode-idea-code-formatter.jar"))
-    into(vscodeDir.dir("formatter"))
-}
-
-tasks.register<Exec>("vscodePackage") {
-    group = "vscode"
-    description = "Package VSCode extension as .vsix"
-    workingDir = vscodeDir.asFile
-    commandLine = listOf("npm", "run", "package")
-    dependsOn("npmCompile", "bundleJar")
-
-    inputs.dir(vscodeDir.dir("out"))
-    inputs.dir(vscodeDir.dir("formatter"))
-    inputs.file(vscodeDir.file("package.json"))
-    outputs.files(fileTree(vscodeDir) { include("*.vsix") })
-}
-
-tasks.register("buildVscode") {
-    group = "vscode"
-    description = "Build VSCode extension (compile + package)"
-    dependsOn("vscodePackage")
-}
-
-tasks.register<Copy>("copyVsix") {
-    group = "vscode"
-    description = "Copy .vsix to build/libs"
-    dependsOn("vscodePackage")
-
-    from(fileTree(vscodeDir) { include("*.vsix") })
-    into(layout.buildDirectory.dir("libs"))
 }
