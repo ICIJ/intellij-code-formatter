@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Breaking
+- The bundled VSCode extension (`vscode-extension/`) is currently **incompatible**
+  with this CLI change. It still invokes the formatter JAR with the old
+  single-file `--lines`/`--style` contract, which no longer works now that the
+  CLI is directory-only — every format command run from the extension will
+  fail with exit code `2` ("Not a directory"). This is a known, accepted gap;
+  updating the extension to the new directory-based contract is tracked as
+  separate follow-up work and has not been done yet. Do not rely on the
+  bundled extension until that follow-up lands.
+
+### Changed
+- CLI now takes a directory instead of a single file, recursively formatting
+  every `.java` file found (skipping `.git`, `build`, `target`, `out`, and
+  `node_modules` at any depth)
+- Removed `--lines` CLI option (formatting a line range within one file no
+  longer composes with directory-wide operation); `StandaloneFormatter.formatCodeRange`
+  is still available for programmatic use
+
+### Added
+- `--check` CLI flag: verifies formatting without writing changes, for use
+  as a CI gate (exit code `1` if any file is not formatted correctly)
+
 ## [2025.3.2] - 2026-02-05
 
 ### Fixed

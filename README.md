@@ -1,18 +1,21 @@
 # IntelliJ IDEA Code Formatter (Standalone)
 
-A standalone code formatter that leverages IntelliJ IDEA's powerful formatting engine without requiring a full IDE installation. Format Java, Kotlin, XML, JSON, YAML, Groovy, and Properties files from the command line with IntelliJ's high-quality code style.
+A standalone code formatter that leverages IntelliJ IDEA's powerful formatting engine without requiring a full IDE installation. The CLI recursively formats Java source directories; the underlying library also supports Kotlin, XML, JSON, YAML, Groovy, and Properties files programmatically.
 
 ## Features
 
-- **Multiple File Types**: Java, Kotlin, Groovy, XML, HTML, JSON, YAML, Properties
+- **Multiple File Types (Library API)**: Java, Kotlin, Groovy, XML, HTML, JSON, YAML, Properties supported via programmatic `StandaloneFormatter` API
 - **Precise Formatting**: Uses IntelliJ IDEA's native formatting engine for identical results
-- **Line Range Formatting**: Format specific lines instead of entire files
+- **Directory-Wide**: Recursively formats every `.java` file under a directory
+- **CI-Friendly Check Mode**: Verify formatting without writing changes, with exit codes for CI gating
 - **Custom Code Styles**: Load IntelliJ code style configurations exported from the IDE
 - **Headless Operation**: No GUI required, perfect for CI/CD pipelines
 - **Self-Contained**: Single fat JAR with all dependencies bundled
 - **Automatic Setup**: Gradle handles IntelliJ IDEA download and configuration
 
 ## Supported File Types
+
+The following file types are supported via the library API (`StandaloneFormatter.formatCode`). The `idea-format` CLI's directory mode currently formats `.java` files only.
 
 | Type       | Extensions                                          |
 |------------|-----------------------------------------------------|
@@ -49,21 +52,18 @@ cd vscode-idea-code-formatter
 Using the wrapper script:
 
 ```bash
-# Format a single file
-./scripts/idea-format path/to/MyClass.java
+# Format every .java file under a directory (recursively)
+./scripts/idea-format src/main/java
 
-# Format only specific lines (1-based)
-./scripts/idea-format --lines 10:25 path/to/MyClass.java
+# Check formatting without writing changes (exit 1 if anything is non-compliant)
+./scripts/idea-format --check src/main/java
 
 # Format with custom code style
-./scripts/idea-format --style my-codestyle.xml path/to/MyClass.java
-
-# Format various file types
-./scripts/idea-format path/to/config.xml
-./scripts/idea-format path/to/data.json
-./scripts/idea-format path/to/config.yaml
-./scripts/idea-format path/to/Build.gradle
+./scripts/idea-format --style my-codestyle.xml src/main/java
 ```
+
+`.git`, `build`, `target`, `out`, and `node_modules` directories are skipped
+automatically, at any depth.
 
 Or run directly with Java:
 
@@ -72,7 +72,7 @@ java --add-opens java.base/java.lang=ALL-UNNAMED \
      --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
      --add-opens java.base/java.io=ALL-UNNAMED \
      --add-opens java.base/java.util=ALL-UNNAMED \
-     -jar build/libs/vscode-idea-code-formatter.jar path/to/MyClass.java
+     -jar build/libs/vscode-idea-code-formatter.jar src/main/java
 ```
 
 ### Custom Code Style
@@ -81,7 +81,7 @@ Export your IntelliJ code style and use it:
 
 ```bash
 # Export from IntelliJ: Settings > Editor > Code Style > Export > IntelliJ IDEA code style XML
-./scripts/idea-format --style my-codestyle.xml path/to/MyClass.java
+./scripts/idea-format --style my-codestyle.xml src/main/java
 ```
 
 ## Programmatic Usage
@@ -110,10 +110,6 @@ public class Example {
         // Format JSON
         String json = "{\"name\":\"test\",\"value\":123}";
         String formattedJson = StandaloneFormatter.formatCode(json, "data.json");
-
-        // Format specific lines (1-based, inclusive)
-        String rangeFormatted = StandaloneFormatter.formatCodeRange(
-            javaCode, "Test.java", 1, 5);
     }
 }
 ```
@@ -145,8 +141,8 @@ public class Example {
 ./gradlew setupIde
 
 # Run via Gradle
-./gradlew run --args="path/to/MyClass.java"
-./gradlew run --args="--lines 10:25 path/to/MyClass.java"
+./gradlew run --args="src/main/java"
+./gradlew run --args="--check src/main/java"
 
 # Clean downloaded IDE JARs
 ./gradlew cleanIde
@@ -168,6 +164,9 @@ vscode-idea-code-formatter/
 │       │   └── CodeStyleLoader.java            # Code style XML loading
 │       ├── core/
 │       │   ├── StandaloneFormatter.java        # Main formatting API
+│       │   ├── JavaFileTraverser.java          # Recursive .java file discovery
+│       │   ├── DirectoryFormatter.java         # Directory-wide format/check runs
+│       │   ├── FormatReport.java               # Format/check run results
 │       │   ├── FormattingException.java        # Formatting errors
 │       │   └── CodeStyleLoadException.java     # Config loading errors
 │       └── services/                           # IntelliJ service implementations
@@ -200,6 +199,13 @@ This approach ensures **identical formatting results** to IntelliJ IDEA while ru
 
 A ready-to-use VSCode extension is built automatically:
 
+> **Known issue**: The bundled extension currently does **not** work with this
+> version of the CLI. It still invokes the formatter JAR using the old
+> single-file `--lines`/`--style` contract, which the directory-only CLI no
+> longer accepts — every format command from the extension will fail with
+> exit code `2`. See [CHANGELOG.md](CHANGELOG.md) for details; fixing the
+> extension is tracked as separate follow-up work.
+
 ```bash
 # Build both JAR and VSCode extension
 ./gradlew build
@@ -218,7 +224,7 @@ See [vscode-extension/README.md](vscode-extension/README.md) for detailed extens
 
 ### Manual Integration with Tasks
 
-Create `.vscode/tasks.json`:
+The formatter now operates on entire directories, so this task will format all `.java` files in your workspace rather than just a single file:
 
 ```json
 {
@@ -234,7 +240,7 @@ Create `.vscode/tasks.json`:
         "--add-opens", "java.base/java.io=ALL-UNNAMED",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
         "-jar", "${workspaceFolder}/build/libs/vscode-idea-code-formatter.jar",
-        "${file}"
+        "${workspaceFolder}"
       ],
       "problemMatcher": []
     }
@@ -250,16 +256,16 @@ Example GitHub Actions workflow:
 - name: Setup Java
   uses: actions/setup-java@v3
   with:
-    java-version: '17'
+    java-version: '21'
     distribution: 'temurin'
 
-- name: Format Code
+- name: Check Formatting
   run: |
     java --add-opens java.base/java.lang=ALL-UNNAMED \
          --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
          --add-opens java.base/java.io=ALL-UNNAMED \
          --add-opens java.base/java.util=ALL-UNNAMED \
-         -jar vscode-idea-code-formatter.jar src/main/java/MyClass.java
+         -jar vscode-idea-code-formatter.jar --check src/main/java
 ```
 
 ## Troubleshooting
@@ -277,7 +283,7 @@ Example GitHub Actions workflow:
 Enable verbose logging by setting the system property:
 
 ```bash
-java -Didea.log.debug=true ... -jar formatter.jar file.java
+java -Didea.log.debug=true ... -jar formatter.jar src/main/java
 ```
 
 ## License
