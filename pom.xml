@@ -31,6 +31,78 @@
           </compilerArgs>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>com.googlecode.maven-download-plugin</groupId>
+        <artifactId>download-maven-plugin</artifactId>
+        <version>1.9.0</version>
+        <executions>
+          <execution>
+            <id>download-idea</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://download-cdn.jetbrains.com/idea/idea-${ide.version}.win.zip</url>
+              <outputDirectory>${project.build.directory}/idea-downloads</outputDirectory>
+              <outputFileName>idea-${ide.version}.win.zip</outputFileName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>extract-idea-jars</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <unzip src="${project.build.directory}/idea-downloads/idea-${ide.version}.win.zip"
+                       dest="${project.build.directory}/ide">
+                  <patternset>
+                    <include name="lib/app.jar"/>
+                    <include name="lib/util.jar"/>
+                    <include name="lib/util_rt.jar"/>
+                    <include name="lib/util-8.jar"/>
+                    <include name="lib/lib.jar"/>
+                    <include name="lib/jps-model.jar"/>
+                    <include name="lib/module-intellij.libraries.fastutil.jar"/>
+                    <include name="lib/module-intellij.libraries.kotlinx.collections.immutable.jar"/>
+                    <include name="lib/module-intellij.libraries.guava.jar"/>
+                    <include name="lib/opentelemetry.jar"/>
+                    <include name="lib/module-intellij.regexp.jar"/>
+                    <include name="lib/module-intellij.xml.parser.jar"/>
+                    <include name="lib/module-intellij.xml.psi.jar"/>
+                    <include name="lib/module-intellij.xml.psi.impl.jar"/>
+                    <include name="lib/module-intellij.xml.analysis.jar"/>
+                    <include name="lib/module-intellij.xml.analysis.impl.jar"/>
+                    <include name="lib/module-intellij.xml.impl.jar"/>
+                    <include name="lib/module-intellij.xml.ui.common.jar"/>
+                    <include name="lib/module-intellij.xml.syntax.jar"/>
+                    <include name="plugins/java/lib/java-impl.jar"/>
+                    <include name="plugins/java/lib/java-impl-frontend.jar"/>
+                    <include name="plugins/Groovy/lib/Groovy.jar"/>
+                    <include name="plugins/properties/lib/properties.jar"/>
+                    <include name="plugins/yaml/lib/yaml.jar"/>
+                    <include name="plugins/json/lib/json.jar"/>
+                    <include name="plugins/Kotlin/lib/kotlin-plugin.jar"/>
+                    <include name="plugins/Kotlin/lib/kotlin-plugin-shared.jar"/>
+                    <include name="plugins/Kotlin/lib/kotlinc.kotlin-compiler-common.jar"/>
+                  </patternset>
+                </unzip>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
