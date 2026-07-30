@@ -18,12 +18,12 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-JAR_PATH="$PROJECT_DIR/build/libs/vscode-idea-code-formatter.jar"
+JAR_PATH="$PROJECT_DIR/target/intellij-code-formatter.jar"
 
 # Check if JAR exists
 if [[ ! -f "$JAR_PATH" ]]; then
     echo "Error: Formatter JAR not found at $JAR_PATH" >&2
-    echo "Run './gradlew build' first to build the formatter." >&2
+    echo "Run './mvnw package' first to build the formatter." >&2
     exit 1
 fi
 

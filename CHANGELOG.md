@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Migrated the build system from Gradle to Maven, for consistency with other
+  ICIJ projects. Use `./mvnw package` instead of `./gradlew build`; the fat
+  jar is now produced at `target/intellij-code-formatter.jar` instead of
+  `build/libs/vscode-idea-code-formatter.jar`.
+
 ### Breaking
 - The bundled VSCode extension (`vscode-extension/`) is currently **incompatible**
   with this CLI change. It still invokes the formatter JAR with the old

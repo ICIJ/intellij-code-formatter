@@ -41,7 +41,7 @@ The following file types are supported via the library API (`StandaloneFormatter
 git clone <repository-url>
 
 # Download IntelliJ IDEA and build the formatter
-./gradlew build
+./mvnw package
 ```
 
 > **Note**: The first build downloads IntelliJ IDEA Community Edition (~600MB) and extracts the required JARs. Subsequent builds skip this step.
@@ -105,40 +105,36 @@ public class Example {
 
 ## Building
 
-### Available Gradle Tasks
+### Available Maven Goals
 
-| Task           | Description                                  |
-|----------------|----------------------------------------------|
-| `build`        | Build JAR                                    |
-| `fatJar`       | Create the fat JAR with all dependencies     |
-| `setupIde`     | Download and extract IntelliJ IDEA           |
-| `cleanIde`     | Remove downloaded IntelliJ IDEA JARs         |
-| `run`          | Run the formatter (use `--args` for options) |
+| Goal                | Description                                             |
+|----------------------|----------------------------------------------------------|
+| `package`            | Compile, test, and build the fat JAR                    |
+| `test`               | Run the test suite                                      |
+| `exec:java`           | Run the formatter (use `-Dexec.args` for options)       |
+| `clean`               | Remove all build output, including downloaded/extracted IntelliJ IDEA JARs |
 
 ### Build Examples
 
 ```bash
-# Full build (JAR)
-./gradlew build
+# Full build (fat JAR)
+./mvnw package
 
-# Build only the fat JAR
-./gradlew fatJar
+# Run tests only
+./mvnw test
 
-# Download IntelliJ IDEA dependencies only
-./gradlew setupIde
+# Run via Maven
+./mvnw exec:java -Dexec.args="src/main/java"
+./mvnw exec:java -Dexec.args="--check src/main/java"
 
-# Run via Gradle
-./gradlew run --args="src/main/java"
-./gradlew run --args="--check src/main/java"
-
-# Clean downloaded IDE JARs
-./gradlew cleanIde
+# Clean everything, including downloaded IDE JARs
+./mvnw clean
 ```
 
 ## Project Architecture
 
 ```
-├── build.gradle.kts              # Build configuration with IDE download tasks
+├── pom.xml                       # Build configuration with IDE download/extraction plugins
 ├── src/main/java/
 │   └── com/intellij/formatter/
 │       ├── JetbrainsFormatterApplication.java  # CLI entry point
@@ -186,7 +182,7 @@ This approach ensures **identical formatting results** to IntelliJ IDEA while ru
 |-------|----------|
 | `OutOfMemoryError` | Increase heap: `-Xmx2g` |
 | `IllegalAccessError` | Ensure all `--add-opens` flags are present |
-| `FileNotFoundException` for JAR | Run `./gradlew build` first |
+| `FileNotFoundException` for JAR | Run `./mvnw package` first |
 
 ### Debug Mode
 
