@@ -1,11 +1,6 @@
-# Gradle build
-build/
+# Maven build
+target/
 bin/
-.gradle/
-
-# IntelliJ IDEA JARs (downloaded via gradle setupIde)
-ide/
-.idea-downloads/
 
 # IDE settings
 .idea/
