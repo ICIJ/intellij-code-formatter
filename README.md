@@ -11,7 +11,7 @@ A standalone code formatter that leverages IntelliJ IDEA's powerful formatting e
 - **Custom Code Styles**: Load IntelliJ code style configurations exported from the IDE
 - **Headless Operation**: No GUI required, perfect for CI/CD pipelines
 - **Self-Contained**: Single fat JAR with all dependencies bundled
-- **Automatic Setup**: Gradle handles IntelliJ IDEA download and configuration
+- **Automatic Setup**: Maven handles IntelliJ IDEA download and configuration
 
 ## Supported File Types
 
@@ -31,7 +31,7 @@ The following file types are supported via the library API (`StandaloneFormatter
 ## Requirements
 
 - **Java 21** or higher
-- **Gradle 7.0+** (wrapper included)
+- **Maven 3.9+** (wrapper included)
 
 ## Quick Start
 
