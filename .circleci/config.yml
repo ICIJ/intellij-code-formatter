@@ -75,14 +75,8 @@ workflows:
   build_workflow:
     jobs:
       - build_and_test:
-          filters:
-            tags:
-              only: /^[0-9]+\..*/
+          filters: pipeline.git.branch != "" or pipeline.git.tag matches /^[0-9]+\..*/
       - release:
           requires:
             - build_and_test
-          filters:
-            tags:
-              only: /^[0-9]+\..*/
-            branches:
-              ignore: /.*/
+          filters: pipeline.git.tag matches /^[0-9]+\..*/
