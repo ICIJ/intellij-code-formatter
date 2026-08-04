@@ -40,11 +40,16 @@ The following file types are supported via the library API (`StandaloneFormatter
 ```bash
 git clone <repository-url>
 
-# Download IntelliJ IDEA and build the formatter
+# Download and extract IntelliJ IDEA first, as its own command
+./mvnw generate-sources
+
+# Then build the formatter
 ./mvnw package
 ```
 
-> **Note**: The first build downloads IntelliJ IDEA Community Edition (~1.5GB) and extracts the required JARs. Subsequent builds skip the download (cached); extraction re-runs each time.
+> **Note**: These must be two separate `./mvnw` invocations, not `./mvnw generate-sources package`. Maven resolves this project's dependencies once, up front, based on whatever already exists on disk when the command starts — before running any phase, including `generate-sources` itself. On a fresh clone, `target/ide` doesn't exist yet, so a single invocation that includes `package` fails immediately, before ever reaching the phase that would download IntelliJ IDEA and create those files. Running `generate-sources` as its own invocation first populates `target/ide`; only then does a second invocation find the files already present. This two-step is only needed on a fresh clone, or any time after `./mvnw clean` (which removes `target/`, including the extracted JARs) — once `target/ide` exists, ordinary `./mvnw package` runs work fine on their own.
+>
+> The first build downloads IntelliJ IDEA Community Edition (~1.5GB) and extracts the required JARs. Subsequent builds skip the download (cached); extraction re-runs each time.
 
 ### 2. Format Files
 
@@ -130,6 +135,8 @@ public class Example {
 # Clean everything, including downloaded IDE JARs
 ./mvnw clean
 ```
+
+> After `./mvnw clean`, rebuild with the two-step invocation from [Quick Start](#1-build-the-project) (`./mvnw generate-sources` then `./mvnw package`) — a single `./mvnw package` will fail since `target/ide` was just removed.
 
 ## Project Architecture
 
