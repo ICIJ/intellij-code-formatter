@@ -1,0 +1,88 @@
+version: 2.1
+
+jobs:
+
+  build_and_test:
+    resource_class: large
+    docker:
+      - image: cimg/openjdk:21.0.9
+    environment:
+      MAVEN_OPTS: "-Xms512m -Xmx1g -Xss10M"
+    steps:
+      - checkout
+      - run:
+          name: Extract IDE version for cache key
+          command: grep -oE '<ide.version>[^<]+' pom.xml | sed 's/<ide.version>//' > /tmp/ide-version.txt
+      # Separate from the dependency cache below: the IDE zip is ~1.5GB and only
+      # changes when ide.version is bumped, so keying it on the whole pom.xml
+      # checksum would force a full re-download on any unrelated pom.xml edit.
+      # download-maven-plugin caches the raw download here itself (keyed by URL),
+      # so restoring it lets the wget goal skip the network fetch entirely.
+      - restore_cache:
+          keys:
+            - v1-idea-zip-{{ checksum "/tmp/ide-version.txt" }}
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+      # Run as two separate Maven invocations, not "./mvnw generate-sources package":
+      # Maven resolves the full dependency graph once, up front, based on whatever is
+      # already on disk when the process starts — before any phase (even generate-sources
+      # within that same invocation) actually runs. On a fresh checkout target/ide doesn't
+      # exist yet, so a single invocation that includes "package" fails immediately, before
+      # ever reaching the phase that would create the IDE jars. Running generate-sources as
+      # its own invocation first populates target/ide; only then does the second invocation
+      # start with the files already present, so its own up-front check passes.
+      - run:
+          name: Download and extract IntelliJ IDEA (must run before any invocation that compiles)
+          no_output_timeout: 30m
+          command: ./mvnw -B generate-sources
+      - run:
+          name: Build and test
+          no_output_timeout: 15m
+          command: ./mvnw -B package
+      - save_cache:
+          paths:
+            - ~/.m2/repository/.cache/download-maven-plugin
+          key: v1-idea-zip-{{ checksum "/tmp/ide-version.txt" }}
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+      - store_test_results:
+          path: target/surefire-reports
+      - store_artifacts:
+          path: target/intellij-code-formatter.jar
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/intellij-code-formatter.jar
+
+  release:
+    docker:
+      - image: cimg/openjdk:21.0.9
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish jar to GitHub release
+          command: |
+            upload_url=$(curl -X POST -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" -d "{\"tag_name\":\"${CIRCLE_TAG}\", \"name\":\"${CIRCLE_TAG}\",\"body\":\"release ${CIRCLE_TAG}\"}" "https://api.github.com/repos/ICIJ/intellij-code-formatter/releases" | jq -r '.upload_url')
+            upload_url="${upload_url%\{*}"
+            curl -X POST -s -m 120 -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/java-archive" --data-binary "@target/intellij-code-formatter.jar" "$upload_url?name=intellij-code-formatter-${CIRCLE_TAG}.jar&label=intellij-code-formatter-${CIRCLE_TAG}.jar"
+
+workflows:
+  version: 2
+  build_workflow:
+    jobs:
+      - build_and_test:
+          filters:
+            tags:
+              only: /^[0-9]+\..*/
+      - release:
+          requires:
+            - build_and_test
+          filters:
+            tags:
+              only: /^[0-9]+\..*/
+            branches:
+              ignore: /.*/
