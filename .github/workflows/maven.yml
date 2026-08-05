@@ -25,9 +25,9 @@ jobs :
         uses : actions/setup-java@v5
         with :
           java-version: '21'
-          distribution: open-jdk
+          distribution: temurin
           architecture: x64
-          cache: maven
+          cache-jdk: true
 
       - name : Download and extract IntelliJ IDEA (must run before any invocation that compiles)
         run : ./mvnw -B generate-sources
@@ -40,3 +40,8 @@ jobs :
         uses: actions/cache/save@v6
         with:
           key: v1-idea-zip-{{ checksum "/tmp/ide-version.txt" }}
+
+      - name: Cache Maven artifacts
+        uses: actions/cache/save@v6
+        with:
+          key: v1-dependencies-{{ checksum "pom.xml" }}
