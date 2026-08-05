@@ -6,8 +6,8 @@ jobs :
     steps:
       - uses : actions/checkout@v6
 
-      - name : Extract IDE version for cache key
-        run : grep -oE '<ide.version>[^<]+' pom.xml | sed 's/<ide.version>//' > /tmp/ide-version.txt
+      - name : Extract IDEA version for cache key
+        run : grep -oE '<idea.version>[^<]+' pom.xml | sed 's/<idea.version>//' > /tmp/idea-version.txt
 
       - name : Restore Intellij Idea artifact cache
         uses : actions/cache/restore@v6
@@ -28,7 +28,7 @@ jobs :
           distribution: open-jdk
           architecture: x64
           cache: maven
-          
+
       - name : Download and extract IntelliJ IDEA (must run before any invocation that compiles)
         run : ./mvnw -B generate-sources
         timeout-minutes: 15

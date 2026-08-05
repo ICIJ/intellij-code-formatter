@@ -13,203 +13,203 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <ide.version>2025.3.1</ide.version>
+    <idea.version>2025.3.1</idea.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>app</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/app.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>util</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/util.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>util_rt</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/util_rt.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>util-8</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/util-8.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>lib</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/lib.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>jps-model</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/jps-model.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.libraries.fastutil</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.libraries.fastutil.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.libraries.kotlinx.collections.immutable</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.libraries.kotlinx.collections.immutable.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.libraries.guava</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.libraries.guava.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>opentelemetry</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/opentelemetry.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.regexp</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.regexp.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.parser</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.parser.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.psi</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.psi.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.psi.impl</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.psi.impl.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.analysis</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.analysis.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.analysis.impl</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.analysis.impl.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.impl</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.impl.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.ui.common</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.ui.common.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>module-intellij.xml.syntax</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/lib/module-intellij.xml.syntax.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>java-impl</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/java/lib/java-impl.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>java-impl-frontend</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/java/lib/java-impl-frontend.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>Groovy</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/Groovy/lib/Groovy.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>properties</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/properties/lib/properties.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>yaml</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/yaml/lib/yaml.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>json</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/json/lib/json.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>kotlin-plugin</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/Kotlin/lib/kotlin-plugin.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>kotlin-plugin-shared</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/Kotlin/lib/kotlin-plugin-shared.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>downloaded-intellij-jar</groupId>
       <artifactId>kotlinc.kotlin-compiler-common</artifactId>
-      <version>${ide.version}</version>
+      <version>${idea.version}</version>
       <scope>system</scope>
       <systemPath>${project.build.directory}/ide/plugins/Kotlin/lib/kotlinc.kotlin-compiler-common.jar</systemPath>
     </dependency>
@@ -321,7 +321,7 @@
               <goal>wget</goal>
             </goals>
             <configuration>
-              <url>https://download-cdn.jetbrains.com/idea/idea-${ide.version}.win.zip</url>
+              <url>https://download-cdn.jetbrains.com/idea/idea-${idea.version}.win.zip</url>
               <unpack>true</unpack>
               <outputDirectory>${project.build.directory}/ide</outputDirectory>
               <includes>
