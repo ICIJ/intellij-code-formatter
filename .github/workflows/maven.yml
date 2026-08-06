@@ -54,7 +54,7 @@ jobs :
             echo "Invalid release tag: $GITHUB_REF_NAME"
             exit 1
           fi
-
-          gh release create "$GITHUB_REF_NAME" target/intellij-code-formatter.jar --generate-notes
+          cp target/intellij-code-formatter.jar "target/intellij-code-formatter-${GITHUB_REF_NAME}.jar"
+          gh release create "$GITHUB_REF_NAME" "target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
