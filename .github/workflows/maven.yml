@@ -1,5 +1,5 @@
 name : build and tests
-on : [push, workflow_call]
+on : [push]
 jobs :
   build:
     runs-on: ubuntu-latest
@@ -35,6 +35,13 @@ jobs :
       - name : build and test
         run : ./mvnw -B package
 
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: intellij-code-formatter.jar
+          path: target/intellij-code-formatter.jar
+          retention-days: 3
+
       - name: Cache Intellij IDEA artifact
         uses: actions/cache/save@v6
         with:
@@ -44,3 +51,15 @@ jobs :
         uses: actions/cache/save@v6
         with:
           key: v1-dependencies-{{ checksum "pom.xml" }}
+
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^[0-9]+\..* ]]; then
+            echo "Invalid release tag: $GITHUB_REF_NAME"
+            exit 1
+          fi
+
+          gh release create "$GITHUB_REF_NAME" target/*.jar --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
