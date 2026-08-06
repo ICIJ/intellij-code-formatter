@@ -35,13 +35,6 @@ jobs :
       - name : build and test
         run : ./mvnw -B package
 
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: intellij-code-formatter.jar
-          path: target/intellij-code-formatter.jar
-          retention-days: 3
-
       - name: Cache Intellij IDEA artifact
         uses: actions/cache/save@v6
         with:
