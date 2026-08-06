@@ -1,4 +1,4 @@
-name : build and tests
+name : CI workflow (build, test, release)
 on : [push]
 jobs :
   build:
