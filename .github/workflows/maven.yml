@@ -39,11 +39,13 @@ jobs :
         uses: actions/cache/save@v6
         with:
           key: v1-idea-zip-{{ checksum "/tmp/ide-version.txt" }}
+          path: ~/.m2/repository/.cache/download-maven-plugin
 
       - name: Cache Maven artifacts
         uses: actions/cache/save@v6
         with:
           key: v1-dependencies-{{ checksum "pom.xml" }}
+          path: ~/.m2
 
       - name: Create GitHub Release
         if: github.ref_type == 'tag'
