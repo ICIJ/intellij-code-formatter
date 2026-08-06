@@ -55,6 +55,6 @@ jobs :
             exit 1
           fi
 
-          gh release create "$GITHUB_REF_NAME" target/*.jar --generate-notes
+          gh release create "$GITHUB_REF_NAME" target/intellij-code-formatter.jar --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
