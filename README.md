@@ -199,6 +199,17 @@ Enable verbose logging by setting the system property:
 java -Didea.log.debug=true ... -jar formatter.jar src/main/java
 ```
 
+## Release process
+
+To create a release, push a tag matching x.y.z where x, y and z are integers which will trigger a github release using 
+github actions. The released artifact will then be available in jitpack repositories using 	
+```
+<dependency>
+<groupId>com.github.icij</groupId>
+<artifactId>intellij-code-formatter</artifactId>
+<version>Tag</version>
+</dependency>
+```
 ## License
 
 MIT License
