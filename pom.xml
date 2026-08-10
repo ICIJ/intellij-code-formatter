@@ -11,5 +11,6 @@
 
   <modules>
     <module>formatter-core</module>
+    <module>maven-plugin</module>
   </modules>
 </project>
