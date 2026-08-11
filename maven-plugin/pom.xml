@@ -7,7 +7,7 @@
   <groupId>org.icij</groupId>
   <artifactId>intellij-code-formatter-maven-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>maven-plugin</packaging>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
@@ -32,12 +32,6 @@
       <artifactId>intellij-code-formatter</artifactId>
       <version>1.0-SNAPSHOT</version>
       <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -60,18 +54,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <version>3.13.1</version>
-        <executions>
-          <execution>
-            <id>mojo-descriptor</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>descriptor</goal>
-            </goals>
-            <configuration>
-              <failOnNoMojos>false</failOnNoMojos>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
