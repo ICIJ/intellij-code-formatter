@@ -1,5 +1,6 @@
 package org.icij.formatter.maven;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -7,6 +8,10 @@ import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,5 +59,36 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
         }
         command.add(directory.getAbsolutePath());
         return command;
+    }
+
+    File resolveCodeStyle() throws MojoExecutionException {
+        if (codeStyle != null) {
+            if (!codeStyle.isFile()) {
+                throw new MojoExecutionException("codeStyle file not found: " + codeStyle);
+            }
+            return codeStyle;
+        }
+
+        try (InputStream in = getClass().getResourceAsStream("/icij-codestyle.xml")) {
+            if (in == null) {
+                throw new MojoExecutionException("Bundled /icij-codestyle.xml resource not found on the plugin classpath");
+            }
+            var tempFile = File.createTempFile("icij-codestyle", ".xml");
+            tempFile.deleteOnExit();
+            Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return tempFile;
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to extract the bundled codestyle", e);
+        }
+    }
+
+    File resolveCoreJar() throws MojoExecutionException {
+        for (Artifact artifact : pluginDescriptor.getArtifacts()) {
+            if ("org.icij".equals(artifact.getGroupId()) && "intellij-code-formatter".equals(artifact.getArtifactId())) {
+                return artifact.getFile();
+            }
+        }
+        throw new MojoExecutionException(
+                "Could not resolve org.icij:intellij-code-formatter among this plugin's dependencies");
     }
 }
