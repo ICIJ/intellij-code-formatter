@@ -7,6 +7,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,5 +91,43 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
         }
         throw new MojoExecutionException(
                 "Could not resolve org.icij:intellij-code-formatter among this plugin's dependencies");
+    }
+
+    @Override
+    public final void execute() throws MojoExecutionException, MojoFailureException {
+        if (skip) {
+            getLog().info("Skipping intellij-code-formatter (formatter.skip=true)");
+            return;
+        }
+        if (directory == null || !directory.isDirectory()) {
+            getLog().info("Skipping intellij-code-formatter: " + directory + " is not a directory");
+            return;
+        }
+
+        var coreJar = resolveCoreJar();
+        var codeStyleFile = resolveCodeStyle();
+        var javaExecutable = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        var command = buildCommand(javaExecutable, coreJar, codeStyleFile, checkOnly(), directory);
+
+        var exitCode = runProcess(command);
+        handleExitCode(exitCode);
+    }
+
+    private int runProcess(List<String> command) throws MojoExecutionException {
+        try {
+            var process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            try (BufferedReader reader = process.inputReader()) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    getLog().info(line);
+                }
+            }
+            return process.waitFor();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to run the formatter process", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new MojoExecutionException("Formatter process interrupted", e);
+        }
     }
 }

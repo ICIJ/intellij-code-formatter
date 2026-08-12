@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 class AbstractFormatterMojoResolveTest {
 
     static class TestMojo extends AbstractFormatterMojo {
-        @Override public void execute() { }
         @Override boolean checkOnly() { return false; }
         @Override void handleExitCode(int exitCode) { }
     }
