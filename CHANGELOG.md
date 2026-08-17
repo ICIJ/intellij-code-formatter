@@ -40,6 +40,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `check` (lint, fails the build) and `format` (auto-fix) goals, both bound
   by default to `process-sources`, using a codestyle fixed in the plugin's
   own resources. See the README's "Maven Plugin" section.
+- The plugin is self-contained: `formatter-core`'s jar is embedded as a nested
+  resource rather than declared as a resolvable dependency, so consumers only
+  ever resolve one artifact. It is extracted once per plugin version into
+  `${settings.localRepository}/.cache/icij-formatter/`.
+- Releases now also publish the plugin jar as a GitHub release asset.
 
 ## [2025.3.2] - 2026-02-05
 

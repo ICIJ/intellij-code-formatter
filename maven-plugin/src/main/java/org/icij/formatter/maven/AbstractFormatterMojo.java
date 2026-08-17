@@ -1,6 +1,5 @@
 package org.icij.formatter.maven;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -11,7 +10,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,9 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
             "--add-opens", "java.desktop/javax.swing=ALL-UNNAMED"
     );
 
+    /** Classpath location of the core jar embedded at build time by maven-dependency-plugin. */
+    static final String EMBEDDED_CORE_JAR = "/intellij-code-formatter.jar";
+
     @Parameter(defaultValue = "${project.build.sourceDirectory}", required = true)
     File directory;
 
@@ -40,6 +44,14 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${plugin}", readonly = true, required = true)
     PluginDescriptor pluginDescriptor;
+
+    /**
+     * Where the extracted core jar is cached. Sitting inside the local repository means a
+     * CI job that already caches {@code ~/.m2} gets the extracted jar for free, and it
+     * honours {@code -Dmaven.repo.local}.
+     */
+    @Parameter(defaultValue = "${settings.localRepository}", readonly = true, required = true)
+    File localRepository;
 
     abstract boolean checkOnly();
 
@@ -83,14 +95,63 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
         }
     }
 
+    /**
+     * Path the core jar is cached at. Keyed by plugin version so that upgrading the plugin
+     * never reuses a stale core.
+     */
+    Path coreJarCachePath() {
+        return localRepository.toPath()
+                .resolve(".cache")
+                .resolve("icij-formatter")
+                .resolve("intellij-code-formatter-" + pluginDescriptor.getVersion() + ".jar");
+    }
+
     File resolveCoreJar() throws MojoExecutionException {
-        for (Artifact artifact : pluginDescriptor.getArtifacts()) {
-            if ("org.icij".equals(artifact.getGroupId()) && "intellij-code-formatter".equals(artifact.getArtifactId())) {
-                return artifact.getFile();
-            }
+        var target = coreJarCachePath();
+        if (Files.isRegularFile(target)) {
+            return target.toFile();
         }
-        throw new MojoExecutionException(
-                "Could not resolve org.icij:intellij-code-formatter among this plugin's dependencies");
+
+        try (InputStream in = getClass().getResourceAsStream(EMBEDDED_CORE_JAR)) {
+            if (in == null) {
+                throw new MojoExecutionException(
+                        "Embedded " + EMBEDDED_CORE_JAR + " not found on the plugin classpath");
+            }
+            getLog().info("Extracting the formatter core to " + target + " (first run only)");
+            return extractToCache(in, target).toFile();
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to extract the embedded formatter core jar", e);
+        }
+    }
+
+    /**
+     * Copies {@code in} to {@code target} at most once, atomically.
+     *
+     * <p>Returns immediately when {@code target} already exists, so every execution after
+     * the first - other modules of the same reactor, and every later build - costs a single
+     * {@code stat} rather than re-writing the jar. The copy lands on a sibling {@code .part}
+     * file first (same filesystem, so the move stays atomic): without that, a concurrent
+     * build could fork {@code java -jar} on a half-written jar and fail with an opaque
+     * {@code ZipException}.</p>
+     */
+    static Path extractToCache(InputStream in, Path target) throws IOException {
+        if (Files.isRegularFile(target)) {
+            return target;
+        }
+
+        Files.createDirectories(target.getParent());
+        var part = Files.createTempFile(target.getParent(), "core-", ".part");
+        try {
+            Files.copy(in, part, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(part, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (FileAlreadyExistsException e) {
+            // A concurrent build won the race. Its copy is identical, so keep it.
+            Files.deleteIfExists(part);
+        } catch (IOException e) {
+            Files.deleteIfExists(part);
+            throw e;
+        }
+        return target;
     }
 
     @Override

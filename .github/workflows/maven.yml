@@ -55,6 +55,18 @@ jobs :
             exit 1
           fi
           cp formatter-core/target/intellij-code-formatter.jar "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar"
-          gh release create "$GITHUB_REF_NAME" "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" --generate-notes
+          # The plugin jar embeds the core, so it is a standalone asset too. Its filename
+          # carries the pom version, which is not the tag until the poms get a shared parent.
+          plugin_jar=$(find maven-plugin/target -maxdepth 1 -name 'intellij-code-formatter-maven-plugin-*.jar' \
+            ! -name "*${GITHUB_REF_NAME}.jar" | head -1)
+          if [[ -z "$plugin_jar" ]]; then
+            echo "Plugin jar not found in maven-plugin/target"
+            exit 1
+          fi
+          cp "$plugin_jar" "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar"
+          gh release create "$GITHUB_REF_NAME" \
+            "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" \
+            "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar" \
+            --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}

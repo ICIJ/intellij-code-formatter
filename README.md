@@ -145,6 +145,42 @@ this is necessary because those flags can't be applied to your build's
 already-running Maven JVM, so expect each bound module to pay a small
 (~2-3 second) JVM startup cost.
 
+### Packaging and the first run
+
+The plugin is **self-contained**: `formatter-core`'s jar is embedded inside the
+plugin jar as a nested resource, so consumers resolve a single artifact and
+never need the core's coordinates in their `<repositories>`.
+
+Because the mojo forks `java -jar`, it needs the core as a real file on disk.
+On the very first execution it extracts the embedded jar to:
+
+```
+${settings.localRepository}/.cache/icij-formatter/intellij-code-formatter-<plugin version>.jar
+```
+
+That costs one ~157 MB write, once per plugin version per machine — not once
+per module and not once per build. Every later execution finds the cached file
+and reuses it. Keeping the cache inside the local repository means CI jobs that
+already cache `~/.m2` get the extracted jar for free.
+
+Two consequences worth knowing:
+
+- the plugin jar itself is ~157 MB, downloaded once at plugin resolution;
+- with the cache, the core ends up on disk twice (inside the plugin jar in
+  `~/.m2`, and extracted). Trimming the core's shade is tracked separately.
+
+If you consume the plugin from JitPack, remember that Maven looks up *plugins*
+in `<pluginRepositories>`, not `<repositories>`:
+
+```xml
+<pluginRepositories>
+  <pluginRepository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </pluginRepository>
+</pluginRepositories>
+```
+
 ## Building
 
 ### Available Maven Goals
