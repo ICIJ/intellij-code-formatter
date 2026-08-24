@@ -55,7 +55,13 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
 
     abstract boolean checkOnly();
 
-    abstract void handleExitCode(int exitCode) throws MojoExecutionException, MojoFailureException;
+    /**
+     * @param exitCode the forked formatter's exit code
+     * @param report   what the forked formatter wrote to stdout: the files it changed, or
+     *                 that are not formatted correctly, plus a summary line
+     */
+    abstract void handleExitCode(int exitCode, List<String> report)
+            throws MojoExecutionException, MojoFailureException;
 
     static List<String> buildCommand(String javaExecutable, File coreJar, File codeStyleFile,
                                       boolean checkOnly, File directory) {
@@ -170,25 +176,51 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
         var javaExecutable = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
         var command = buildCommand(javaExecutable, coreJar, codeStyleFile, checkOnly(), directory);
 
-        var exitCode = runProcess(command);
-        handleExitCode(exitCode);
+        var result = runProcess(command);
+        handleExitCode(result.exitCode(), result.report());
     }
 
-    private int runProcess(List<String> command) throws MojoExecutionException {
+    /**
+     * @param exitCode the forked formatter's exit code
+     * @param report   the lines it wrote to stdout
+     */
+    record ProcessResult(int exitCode, List<String> report) {
+    }
+
+    /**
+     * Runs the forked formatter, logging everything it prints and returning its report.
+     *
+     * <p>stdout and stderr are kept apart rather than merged: stdout carries the report
+     * - the offending or reformatted files - which callers need in order to name those
+     * files in a failure message, while stderr only carries progress. stderr is drained
+     * on its own thread because a full pipe buffer would otherwise block the forked
+     * process while we sit reading the other stream.</p>
+     */
+    private ProcessResult runProcess(List<String> command) throws MojoExecutionException {
         try {
-            var process = new ProcessBuilder(command).redirectErrorStream(true).start();
+            var process = new ProcessBuilder(command).start();
+            var progress = Thread.ofVirtual().start(() -> logProgress(process));
+
+            List<String> report;
             try (BufferedReader reader = process.inputReader()) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    getLog().info(line);
-                }
+                report = reader.lines().peek(getLog()::info).toList();
             }
-            return process.waitFor();
+            var exitCode = process.waitFor();
+            progress.join();
+            return new ProcessResult(exitCode, report);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to run the formatter process", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new MojoExecutionException("Formatter process interrupted", e);
+        }
+    }
+
+    private void logProgress(Process process) {
+        try (BufferedReader reader = process.errorReader()) {
+            reader.lines().forEach(getLog()::info);
+        } catch (IOException e) {
+            getLog().debug("Failed to read the formatter process stderr", e);
         }
     }
 }

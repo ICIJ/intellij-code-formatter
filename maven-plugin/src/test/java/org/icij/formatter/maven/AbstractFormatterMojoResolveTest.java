@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,7 +21,7 @@ class AbstractFormatterMojoResolveTest {
 
     static class TestMojo extends AbstractFormatterMojo {
         @Override boolean checkOnly() { return false; }
-        @Override void handleExitCode(int exitCode) { }
+        @Override void handleExitCode(int exitCode, List<String> report) { }
     }
 
     private static ByteArrayInputStream payload(String content) {

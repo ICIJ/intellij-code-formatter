@@ -20,7 +20,7 @@ class AbstractFormatterMojoExecuteTest {
 
         @Override boolean checkOnly() { return true; }
 
-        @Override void handleExitCode(int exitCode) {
+        @Override void handleExitCode(int exitCode, List<String> report) {
             handledExitCodes.add(exitCode);
         }
     }
