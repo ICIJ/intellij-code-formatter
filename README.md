@@ -57,13 +57,13 @@ Using the wrapper script:
 
 ```bash
 # Format every .java file under a directory (recursively)
-./scripts/idea-format src/main/java
+./formatter-core/scripts/idea-format src/main/java
 
 # Check formatting without writing changes (exit 1 if anything is non-compliant)
-./scripts/idea-format --check src/main/java
+./formatter-core/scripts/idea-format --check src/main/java
 
 # Format with custom code style
-./scripts/idea-format --style my-codestyle.xml src/main/java
+./formatter-core/scripts/idea-format --style my-codestyle.xml src/main/java
 ```
 
 `.git`, `build`, `target`, `out`, and `node_modules` directories are skipped
@@ -75,7 +75,7 @@ Export your IntelliJ code style and use it:
 
 ```bash
 # Export from IntelliJ: Settings > Editor > Code Style > Export > IntelliJ IDEA code style XML
-./scripts/idea-format --style my-codestyle.xml src/main/java
+./formatter-core/scripts/idea-format --style my-codestyle.xml src/main/java
 ```
 
 ## Programmatic Usage
@@ -108,6 +108,79 @@ public class Example {
 }
 ```
 
+## Maven Plugin
+
+Besides the CLI, this project ships a Maven plugin that lints or auto-fixes
+Java formatting as part of a normal build, using the codestyle fixed in
+`maven-plugin/src/main/resources/icij-codestyle.xml` — no per-project
+configuration needed.
+
+Add it to your `pom.xml` to fail the build on non-compliant files (bound to
+the `process-sources` phase):
+
+```xml
+<plugin>
+  <groupId>org.icij</groupId>
+  <artifactId>intellij-code-formatter-maven-plugin</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <executions>
+    <execution>
+      <goals><goal>check</goal></goals>
+    </execution>
+  </executions>
+</plugin>
+```
+
+To fix files instead of failing the build, use the `format` goal instead of
+`check`. You can also run either goal directly without editing your `pom.xml`:
+
+```bash
+mvn org.icij:intellij-code-formatter-maven-plugin:format
+```
+
+Both goals only scan `${project.build.sourceDirectory}` (`src/main/java` by
+default) for `.java` files. Internally, each goal forks a `java` subprocess
+running `formatter-core`'s CLI with the `--add-opens` flags it requires —
+this is necessary because those flags can't be applied to your build's
+already-running Maven JVM, so expect each bound module to pay a small
+(~2-3 second) JVM startup cost.
+
+### Packaging and the first run
+
+The plugin is **self-contained**: `formatter-core`'s jar is embedded inside the
+plugin jar as a nested resource, so consumers resolve a single artifact and
+never need the core's coordinates in their `<repositories>`.
+
+Because the mojo forks `java -jar`, it needs the core as a real file on disk.
+On the very first execution it extracts the embedded jar to:
+
+```
+${settings.localRepository}/.cache/icij-formatter/intellij-code-formatter-<plugin version>.jar
+```
+
+That costs one ~157 MB write, once per plugin version per machine — not once
+per module and not once per build. Every later execution finds the cached file
+and reuses it. Keeping the cache inside the local repository means CI jobs that
+already cache `~/.m2` get the extracted jar for free.
+
+Two consequences worth knowing:
+
+- the plugin jar itself is ~157 MB, downloaded once at plugin resolution;
+- with the cache, the core ends up on disk twice (inside the plugin jar in
+  `~/.m2`, and extracted). Trimming the core's shade is tracked separately.
+
+If you consume the plugin from JitPack, remember that Maven looks up *plugins*
+in `<pluginRepositories>`, not `<repositories>`:
+
+```xml
+<pluginRepositories>
+  <pluginRepository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </pluginRepository>
+</pluginRepositories>
+```
+
 ## Building
 
 ### Available Maven Goals
@@ -129,8 +202,8 @@ public class Example {
 ./mvnw test
 
 # Run via Maven
-./mvnw exec:java -Dexec.args="src/main/java"
-./mvnw exec:java -Dexec.args="--check src/main/java"
+./mvnw -pl formatter-core exec:java -Dexec.args="src/main/java"
+./mvnw -pl formatter-core exec:java -Dexec.args="--check src/main/java"
 
 # Clean everything, including downloaded IDE JARs
 ./mvnw clean
@@ -141,33 +214,38 @@ public class Example {
 ## Project Architecture
 
 ```
-├── pom.xml                       # Build configuration with IDE download/extraction plugins
-├── src/main/java/
-│   └── com/intellij/formatter/
-│       ├── JetbrainsFormatterApplication.java  # CLI entry point
-│       ├── bootstrap/
-│       │   ├── FormatterBootstrap.java         # IntelliJ Platform initialization
-│       │   ├── HeadlessMockApplication.java    # Headless application mock
-│       │   └── SilentLogger.java               # Log suppression
-│       ├── config/
-│       │   └── CodeStyleLoader.java            # Code style XML loading
-│       ├── core/
-│       │   ├── StandaloneFormatter.java        # Main formatting API
-│       │   ├── JavaFileTraverser.java          # Recursive .java file discovery
-│       │   ├── DirectoryFormatter.java         # Directory-wide format/check runs
-│       │   ├── FormatReport.java               # Format/check run results
-│       │   ├── FormattingException.java        # Formatting errors
-│       │   └── CodeStyleLoadException.java     # Config loading errors
-│       └── services/                           # IntelliJ service implementations
-│           ├── codestyle/                      # Code style providers
-│           ├── document/                       # Document management
-│           ├── filetype/                       # File type detection
-│           ├── formatting/                     # Formatting services
-│           ├── project/                        # Project services
-│           └── psi/                            # PSI (code model) services
-├── scripts/
-│   └── idea-format                             # Shell wrapper script
-└── target/ide/                                 # Downloaded IntelliJ JARs, generated by Maven build (target/ is gitignored)
+├── pom.xml                       # Reactor aggregator (packaging=pom)
+├── formatter-core/               # CLI + library (unchanged from before the reactor split)
+│   ├── pom.xml                   # Build configuration with IDE download/extraction plugins
+│   ├── src/main/java/
+│   │   └── com/intellij/formatter/
+│   │       ├── JetbrainsFormatterApplication.java  # CLI entry point
+│   │       ├── bootstrap/
+│   │       │   ├── FormatterBootstrap.java         # IntelliJ Platform initialization
+│   │       │   ├── HeadlessMockApplication.java    # Headless application mock
+│   │       │   └── SilentLogger.java               # Log suppression
+│   │       ├── config/
+│   │       │   └── CodeStyleLoader.java            # Code style XML loading
+│   │       ├── core/
+│   │       │   ├── StandaloneFormatter.java        # Main formatting API
+│   │       │   ├── JavaFileTraverser.java          # Recursive .java file discovery
+│   │       │   ├── DirectoryFormatter.java         # Directory-wide format/check runs
+│   │       │   ├── FormatReport.java               # Format/check run results
+│   │       │   ├── FormattingException.java        # Formatting errors
+│   │       │   └── CodeStyleLoadException.java     # Config loading errors
+│   │       └── services/                           # IntelliJ service implementations
+│   ├── scripts/
+│   │   └── idea-format                             # Shell wrapper script
+│   └── target/ide/                                 # Downloaded IntelliJ JARs, generated by Maven build (gitignored)
+└── maven-plugin/                 # Maven plugin (this module never touches IntelliJ classes directly —
+    ├── pom.xml                   # it forks formatter-core's shaded jar as a subprocess)
+    └── src/main/
+        ├── java/org/icij/formatter/maven/
+        │   ├── AbstractFormatterMojo.java          # Shared parameters, subprocess fork, exit code handling
+        │   ├── CheckMojo.java                      # `check` goal — lints, fails the build, writes nothing
+        │   └── FormatMojo.java                     # `format` goal — rewrites non-compliant files
+        └── resources/
+            └── icij-codestyle.xml                  # Fixed default codestyle bundled into the plugin jar
 ```
 
 ## How It Works

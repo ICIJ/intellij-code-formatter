@@ -7,7 +7,7 @@ jobs :
       - uses : actions/checkout@v6
 
       - name : Extract IDEA version for cache key
-        run : grep -oE '<idea.version>[^<]+' pom.xml | sed 's/<idea.version>//' > idea-version.txt
+        run : grep -oE '<idea.version>[^<]+' formatter-core/pom.xml | sed 's/<idea.version>//' > idea-version.txt
 
       - name : Restore Intellij Idea artifact cache
         uses : actions/cache/restore@v6
@@ -18,7 +18,7 @@ jobs :
       - name: Restore Maven artifacts cache
         uses: actions/cache/restore@v6
         with:
-          key: v1-dependencies-${{ hashFiles('pom.xml') }}
+          key: v1-dependencies-${{ hashFiles('**/pom.xml') }}
           path: ~/.m2
 
       - name : Set up jdk 21 for x64
@@ -44,7 +44,7 @@ jobs :
       - name: Cache Maven artifacts
         uses: actions/cache/save@v6
         with:
-          key: v1-dependencies-${{ hashFiles('pom.xml') }}
+          key: v1-dependencies-${{ hashFiles('**/pom.xml') }}
           path: ~/.m2
 
       - name: Create GitHub Release
@@ -54,7 +54,19 @@ jobs :
             echo "Invalid release tag: $GITHUB_REF_NAME"
             exit 1
           fi
-          cp target/intellij-code-formatter.jar "target/intellij-code-formatter-${GITHUB_REF_NAME}.jar"
-          gh release create "$GITHUB_REF_NAME" "target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" --generate-notes
+          cp formatter-core/target/intellij-code-formatter.jar "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar"
+          # The plugin jar embeds the core, so it is a standalone asset too. Its filename
+          # carries the pom version, which is not the tag until the poms get a shared parent.
+          plugin_jar=$(find maven-plugin/target -maxdepth 1 -name 'intellij-code-formatter-maven-plugin-*.jar' \
+            ! -name "*${GITHUB_REF_NAME}.jar" | head -1)
+          if [[ -z "$plugin_jar" ]]; then
+            echo "Plugin jar not found in maven-plugin/target"
+            exit 1
+          fi
+          cp "$plugin_jar" "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar"
+          gh release create "$GITHUB_REF_NAME" \
+            "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" \
+            "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar" \
+            --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}

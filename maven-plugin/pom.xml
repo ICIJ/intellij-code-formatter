@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.icij</groupId>
+  <artifactId>intellij-code-formatter-maven-plugin</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>maven-plugin</packaging>
+
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>3.9.16</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>3.15.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <!--
+      provided, not runtime: the core jar is copied into this plugin's own resources
+      (see maven-dependency-plugin below) and extracted at runtime, so consumers must
+      never try to resolve it as a separate artifact. provided keeps it off the
+      generated plugin descriptor while staying resolvable at build time.
+    -->
+    <dependency>
+      <groupId>org.icij</groupId>
+      <artifactId>intellij-code-formatter</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.9.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.15.2</version>
+      </plugin>
+
+      <!--
+        Embed the core jar as a nested resource. The mojo forks `java -jar <coreJar>`,
+        so it needs a real executable jar file on disk, not the core's classes on its
+        own classpath - shading would not work here.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.11.0</version>
+        <executions>
+          <execution>
+            <id>embed-formatter-core</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <!--
+                copy-dependencies, not copy: it works off the project's resolved
+                dependency graph, so the sibling module's jar is found during a plain
+                reactor `package` (what CI runs). `copy` with explicit artifactItems
+                goes through the repository and needs formatter-core installed first.
+              -->
+              <includeGroupIds>org.icij</includeGroupIds>
+              <includeArtifactIds>intellij-code-formatter</includeArtifactIds>
+              <includeScope>provided</includeScope>
+              <stripVersion>true</stripVersion>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--
+        The embedded core jar is already compressed; re-deflating ~157 MB on every
+        package would cost minutes for no size gain. The plugin's own classes are
+        a few KB, so storing the whole archive is the right trade.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <archive>
+            <compress>false</compress>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.6</version>
+        <configuration>
+          <systemPropertyVariables>
+            <formatterCoreJar>${project.basedir}/../formatter-core/target/intellij-code-formatter.jar</formatterCoreJar>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

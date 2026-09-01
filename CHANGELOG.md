@@ -29,10 +29,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Removed `--lines` CLI option (formatting a line range within one file no
   longer composes with directory-wide operation); `StandaloneFormatter.formatCodeRange`
   is still available for programmatic use
+- Restructured the repository into a two-module Maven reactor:
+  `formatter-core` (the existing CLI/library, unchanged) and the new
+  `maven-plugin`.
 
 ### Added
 - `--check` CLI flag: verifies formatting without writing changes, for use
   as a CI gate (exit code `1` if any file is not formatted correctly)
+- New `intellij-code-formatter-maven-plugin` module: a Maven plugin with
+  `check` (lint, fails the build) and `format` (auto-fix) goals, both bound
+  by default to `process-sources`, using a codestyle fixed in the plugin's
+  own resources. See the README's "Maven Plugin" section.
+- The plugin is self-contained: `formatter-core`'s jar is embedded as a nested
+  resource rather than declared as a resolvable dependency, so consumers only
+  ever resolve one artifact. It is extracted once per plugin version into
+  `${settings.localRepository}/.cache/icij-formatter/`.
+- Releases now also publish the plugin jar as a GitHub release asset.
 
 ## [2025.3.2] - 2026-02-05
 
