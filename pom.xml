@@ -140,13 +140,18 @@
           </configuration>
         </plugin>
         <plugin>
-          <!-- Resolves the ${revision} placeholder in the deployed poms so
-               consumers never see the literal token, only the real version. -->
+          <!-- 'oss' mode (not the minimal 'resolveCiFriendliesOnly') is required for
+               Central: it resolves ${revision} AND inlines inherited coordinates
+               (groupId, name, description...) into a self-contained POM. Without it,
+               formatter-core/maven-plugin's deployed POM has no explicit groupId (only
+               inherited via <parent>), and Central's ingestion - which parses the POM
+               file directly rather than resolving inheritance - rejects it with
+               "Failed to get coordinates from pom file". -->
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
           <version>1.7.0</version>
           <configuration>
-            <flattenMode>resolveCiFriendliesOnly</flattenMode>
+            <flattenMode>oss</flattenMode>
           </configuration>
           <executions>
             <execution>
