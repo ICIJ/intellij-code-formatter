@@ -56,14 +56,13 @@ jobs :
           fi
           cp formatter-core/target/intellij-code-formatter.jar "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar"
           # The plugin jar embeds the core, so it is a standalone asset too. Its filename
-          # carries the pom version, which is not the tag until the poms get a shared parent.
-          plugin_jar=$(find maven-plugin/target -maxdepth 1 -name 'intellij-code-formatter-maven-plugin-*.jar' \
-            ! -name "*${GITHUB_REF_NAME}.jar" | head -1)
-          if [[ -z "$plugin_jar" ]]; then
-            echo "Plugin jar not found in maven-plugin/target"
+          # already carries the tag ('make release' sets the reactor's revision to the tag
+          # before tagging), so it needs no renaming, only a presence check.
+          plugin_jar="maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar"
+          if [[ ! -f "$plugin_jar" ]]; then
+            echo "Plugin jar not found at $plugin_jar - was the release cut with 'make release NEW_VERSION=...'?"
             exit 1
           fi
-          cp "$plugin_jar" "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar"
           gh release create "$GITHUB_REF_NAME" \
             "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" \
             "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar" \
@@ -86,7 +85,7 @@ jobs :
 
       - name : Deploy to Sonatype Central
         if: github.ref_type == 'tag'
-        run: ./mvnw -B -Drevision="${GITHUB_REF_NAME}" deploy -DskipTests
+        run: ./mvnw -B deploy -DskipTests
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

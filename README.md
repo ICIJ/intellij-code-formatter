@@ -269,10 +269,32 @@ java -Didea.log.debug=true ... -jar formatter.jar src/main/java
 
 ## Release process
 
-To create a release, push a tag matching `x.y.z` where x, y and z are integers.
-This triggers a GitHub Actions workflow that creates a GitHub release with the
-`formatter-core` and `maven-plugin` jars attached, and publishes both modules
-to Maven Central under that version:
+Cut a release with:
+
+```bash
+make release NEW_VERSION=x.y.z
+git push origin main --tags
+```
+
+`make release` sets the reactor's version (the `revision` property in the
+root `pom.xml`, inherited by `formatter-core` and `maven-plugin`) to
+`NEW_VERSION`, commits that as `[release] x.y.z [skip ci]`, and tags the
+commit — so the tag always points at a commit where the poms already carry
+that exact version. Pushing the tag triggers `.github/workflows/maven.yml`,
+which:
+
+1. Builds and tests the full reactor (same as every push).
+2. Creates a GitHub Release named after the tag, with the `formatter-core`
+   and `maven-plugin` jars attached as standalone downloads.
+3. Publishes both `formatter-core` and `maven-plugin` to Maven Central under
+   that version, signing artifacts and attaching sources/javadoc jars as
+   Central requires.
+
+The deploy step needs repository secrets configured under **Settings →
+Secrets and variables → Actions**
+
+Once published, consume either module with the tag as the version — no extra
+repository configuration needed, both resolve from Central:
 
 ```xml
 <dependency>
