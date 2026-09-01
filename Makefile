@@ -9,6 +9,6 @@ ifndef NEW_VERSION
 endif
 	$(MVN) versions:set-property -Dproperty=revision -DnewVersion=$(NEW_VERSION)
 	$(MVN) versions:commit
-	git commit -am "[release] $(NEW_VERSION) [skip ci]"
+	git commit -am "[release] $(NEW_VERSION)"
 	git tag $(NEW_VERSION)
 	@echo "Release $(NEW_VERSION) created. Push with: git push origin main --tags"
