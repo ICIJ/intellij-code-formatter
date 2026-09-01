@@ -292,6 +292,21 @@
     <finalName>intellij-code-formatter</finalName>
     <plugins>
       <plugin>
+        <!-- The published jar is a shaded uber-jar (see maven-shade-plugin below): every
+             dependency, including the system-scoped IDE jars Central forbids, is already
+             bundled in. Consumers need none of them declared, so drop the whole
+             <dependencies> section from the deployed POM rather than just working around
+             the system-scope rejection. -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <configuration>
+          <flattenMode>oss</flattenMode>
+          <pomElements>
+            <dependencies>remove</dependencies>
+          </pomElements>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
