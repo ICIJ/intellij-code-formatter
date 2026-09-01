@@ -95,7 +95,19 @@ jobs :
 
       - name : Deploy to Sonatype Central
         if: github.ref_type == 'tag'
-        run: ./mvnw -B deploy -DskipTests
+        run: |
+          # Central's upload API intermittently returns 401 on later modules in a
+          # reactor deploy - a known, documented issue, not a credentials problem.
+          # ignorePublishedComponents (pom.xml) makes retrying safe: modules already
+          # published in an earlier attempt are skipped instead of re-uploaded.
+          for attempt in 1 2 3; do
+            if ./mvnw -B deploy -DskipTests; then
+              exit 0
+            fi
+            echo "Deploy attempt $attempt failed, retrying in 30s..."
+            sleep 30
+          done
+          exit 1
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
