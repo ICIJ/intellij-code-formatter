@@ -63,10 +63,20 @@ jobs :
             echo "Plugin jar not found at $plugin_jar - was the release cut with 'make release NEW_VERSION=...'?"
             exit 1
           fi
-          gh release create "$GITHUB_REF_NAME" \
-            "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" \
-            "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar" \
-            --generate-notes
+          # Idempotent: a re-run (e.g. after a later step like the Central deploy
+          # failed) must not fail here just because the release already exists.
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists, re-uploading assets"
+            gh release upload "$GITHUB_REF_NAME" \
+              "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" \
+              "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar" \
+              --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              "formatter-core/target/intellij-code-formatter-${GITHUB_REF_NAME}.jar" \
+              "maven-plugin/target/intellij-code-formatter-maven-plugin-${GITHUB_REF_NAME}.jar" \
+              --generate-notes
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
 
