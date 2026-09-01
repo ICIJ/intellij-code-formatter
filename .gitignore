@@ -1,6 +1,13 @@
 # Maven build
 target/
 bin/
+.flattened-pom.xml
+
+# Leftover Gradle-era build output (project now builds with Maven)
+.gradle/
+build/
+.idea-downloads/
+ide/
 
 # IDE settings
 .idea/

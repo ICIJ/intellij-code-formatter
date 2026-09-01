@@ -1,4 +1,0 @@
-install:
-  - ./mvnw -B clean
-  - ./mvnw -B generate-sources
-  - ./mvnw -B install

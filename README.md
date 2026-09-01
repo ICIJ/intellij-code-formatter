@@ -122,7 +122,7 @@ the `process-sources` phase):
 <plugin>
   <groupId>org.icij</groupId>
   <artifactId>intellij-code-formatter-maven-plugin</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>{{version}}</version>
   <executions>
     <execution>
       <goals><goal>check</goal></goals>
@@ -130,6 +130,8 @@ the `process-sources` phase):
   </executions>
 </plugin>
 ```
+
+Replace `{{version}}` with the [latest release tag](https://github.com/ICIJ/intellij-code-formatter/tags). Both the plugin and `formatter-core` are published to Maven Central, so no extra repository configuration is needed.
 
 To fix files instead of failing the build, use the `format` goal instead of
 `check`. You can also run either goal directly without editing your `pom.xml`:
@@ -168,18 +170,6 @@ Two consequences worth knowing:
 - the plugin jar itself is ~157 MB, downloaded once at plugin resolution;
 - with the cache, the core ends up on disk twice (inside the plugin jar in
   `~/.m2`, and extracted). Trimming the core's shade is tracked separately.
-
-If you consume the plugin from JitPack, remember that Maven looks up *plugins*
-in `<pluginRepositories>`, not `<repositories>`:
-
-```xml
-<pluginRepositories>
-  <pluginRepository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-  </pluginRepository>
-</pluginRepositories>
-```
 
 ## Building
 
@@ -279,13 +269,16 @@ java -Didea.log.debug=true ... -jar formatter.jar src/main/java
 
 ## Release process
 
-To create a release, push a tag matching x.y.z where x, y and z are integers which will trigger a github release using 
-github actions. The released artifact will then be available in jitpack repositories using 	
-```
+To create a release, push a tag matching `x.y.z` where x, y and z are integers.
+This triggers a GitHub Actions workflow that creates a GitHub release with the
+`formatter-core` and `maven-plugin` jars attached, and publishes both modules
+to Maven Central under that version:
+
+```xml
 <dependency>
-<groupId>com.github.icij</groupId>
-<artifactId>intellij-code-formatter</artifactId>
-<version>Tag</version>
+  <groupId>org.icij</groupId>
+  <artifactId>intellij-code-formatter</artifactId>
+  <version>Tag</version>
 </dependency>
 ```
 ## License

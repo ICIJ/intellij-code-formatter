@@ -70,3 +70,24 @@ jobs :
             --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name : Set up jdk 21 for deployment to Sonatype Central
+        if: github.ref_type == 'tag'
+        uses : actions/setup-java@v5
+        with :
+          java-version: '21'
+          distribution: temurin
+          architecture: x64
+          server-id: central
+          server-username: SONATYPE_USERNAME
+          server-password: SONATYPE_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name : Deploy to Sonatype Central
+        if: github.ref_type == 'tag'
+        run: ./mvnw -B -Drevision="${GITHUB_REF_NAME}" deploy -DskipTests
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
