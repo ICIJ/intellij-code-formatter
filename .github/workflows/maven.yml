@@ -96,18 +96,7 @@ jobs :
       - name : Deploy to Sonatype Central
         if: github.ref_type == 'tag'
         run: |
-          # Retries here guard against transient upload failures. Credentials,
-          # namespace verification, and stale/failed portal deployments were all
-          # ruled out as causes of the 401 this used to hit on every attempt (that
-          # 401 came from the ignorePublishedComponents pre-check, removed in pom.xml).
-          for attempt in 1 2 3; do
-            if ./mvnw -B deploy -DskipTests; then
-              exit 0
-            fi
-            echo "Deploy attempt $attempt failed, retrying in 30s..."
-            sleep 30
-          done
-          exit 1
+            ./mvnw -B clean deploy -DskipTests
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
