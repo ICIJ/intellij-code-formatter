@@ -137,18 +137,12 @@
             <publishingServerId>central</publishingServerId>
             <autoPublish>true</autoPublish>
             <!-- Not 'published': Central's post-upload status-check call (what
-                 waitUntil=published polls) has been consistently returning 401,
-                 independent of the upload itself succeeding. 'uploaded' only waits
-                 for bundle receipt (which works), and lets autoPublish complete the
-                 actual publish server-side without our build depending on the
-                 broken polling call. Verify actual publication on the Central
-                 Publishing Portal rather than trusting CI's own success/failure here. -->
+                 waitUntil=published polls) is separately known to be flaky. 'uploaded'
+                 only waits for bundle receipt, and lets autoPublish complete the actual
+                 publish server-side without our build depending on that polling call.
+                 Verify actual publication on the Central Publishing Portal rather than
+                 trusting CI's own success/failure here. -->
             <waitUntil>uploaded</waitUntil>
-            <!-- Central's upload API intermittently returns 401 on later modules in a
-                 reactor (a documented, known issue, not a credentials problem - see CI
-                 workflow retry). This makes a retried `mvn deploy` safe: modules already
-                 published in an earlier attempt are skipped instead of re-uploaded. -->
-            <ignorePublishedComponents>true</ignorePublishedComponents>
           </configuration>
         </plugin>
         <plugin>
