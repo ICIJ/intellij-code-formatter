@@ -10,7 +10,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <revision>1.0.0</revision>
+    <revision>1.0.1</revision>
   </properties>
 
   <name>IntelliJ IDEA Code Formatter</name>
