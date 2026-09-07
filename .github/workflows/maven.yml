@@ -96,7 +96,7 @@ jobs :
       - name : Deploy to Sonatype Central
         if: github.ref_type == 'tag'
         run: |
-            ./mvnw -B clean deploy -DskipTests
+            ./mvnw -B clean deploy -s .github/mvn-release-settings.xml -DskipTests
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
