@@ -3,6 +3,7 @@ package com.intellij.formatter.config;
 import com.intellij.formatter.core.CodeStyleLoadException;
 import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,13 @@ class CustomConfigTest {
         var url = getClass().getClassLoader().getResource(resourceName);
         Objects.requireNonNull(url, "Resource not found: " + resourceName);
         return Path.of(url.getPath()).toString();
+    }
+
+    @AfterEach
+    void resetCodeStyle() {
+        // The formatter's IntelliJ project is a JVM-wide singleton, so a custom style
+        // loaded here would otherwise leak into unrelated tests in other classes.
+        CodeStyleLoader.resetToDefault();
     }
 
     @Test
@@ -55,11 +63,15 @@ class CustomConfigTest {
         CodeStyleLoader.loadFromFile(configPath);
 
         var input = "public class Test{void method(){int x=1;}}";
-        var actual = StandaloneFormatter.formatCode(input, "Test.java");
+        var expected = """
+                public class Test {
+                  void method() {
+                    int x = 1;
+                  }
+                }""";
 
-        // With 2-space indent, we should see "  void" not "    void"
-        assertTrue(actual.contains("  void") || actual.contains("\tvoid"),
-                "Expected 2-space or tab indent, got:\n" + actual);
+        var actual = StandaloneFormatter.formatCode(input, "Test.java");
+        assertEquals(expected, actual);
     }
 
     @Test
