@@ -7,24 +7,24 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests using the actual ICIJ code style shipped in maven-plugin/src/main/resources/icij-codestyle.xml,
- * as opposed to the synthetic configs in {@link CustomConfigTest}.
+ * Tests using the actual ICIJ code style shipped in formatter-core/src/main/resources/icij-codestyle.xml
+ * (also embedded and reused as-is by the maven-plugin module), as opposed to the synthetic configs in
+ * {@link CustomConfigTest}.
  */
 @DisplayName("ICIJ Code Style Tests")
 class IcijCodeStyleTest {
 
     private static String icijCodeStylePath() {
-        // The real file used in production, not a copy, so this test always reflects the current style.
-        var path = Path.of("..", "maven-plugin", "src", "main", "resources", "icij-codestyle.xml").normalize();
-        assertTrue(Files.exists(path), "icij-codestyle.xml not found at " + path.toAbsolutePath());
-        return path.toString();
+        // Loaded from the classpath, not a copy, so this test always reflects the current style.
+        var url = IcijCodeStyleTest.class.getClassLoader().getResource("icij-codestyle.xml");
+        Objects.requireNonNull(url, "icij-codestyle.xml not found on the classpath");
+        return Path.of(url.getPath()).toString();
     }
 
     @AfterEach

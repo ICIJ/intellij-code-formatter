@@ -5,10 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.net.URISyntaxException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,7 +30,7 @@ class ForkIntegrationTest {
         Files.createDirectories(srcDir);
         Files.writeString(srcDir.resolve("Bad.java"), "public class Bad{public void m(){int x=1;}}\n");
 
-        var codeStyle = classpathResourceAsFile("/icij-codestyle.xml");
+        var codeStyle = classpathResourceAsFile("/icij-codestyle.xml", tempDir);
         var javaExecutable = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 
         assertEquals(1, run(AbstractFormatterMojo.buildCommand(
@@ -63,7 +66,7 @@ class ForkIntegrationTest {
             }
         };
         mojo.directory = srcDir.toFile();
-        mojo.codeStyle = classpathResourceAsFile("/icij-codestyle.xml");
+        mojo.codeStyle = classpathResourceAsFile("/icij-codestyle.xml", tempDir);
 
         var failure = assertThrows(MojoFailureException.class, mojo::execute);
 
@@ -72,8 +75,17 @@ class ForkIntegrationTest {
                 "expected the failure message to name " + badFile + ", was:\n" + failure.getMessage());
     }
 
-    private static File classpathResourceAsFile(String name) throws URISyntaxException {
-        return new File(ForkIntegrationTest.class.getResource(name).toURI());
+    /**
+     * Extracts a classpath resource to a real file.
+     *
+     */
+    private static File classpathResourceAsFile(String name, Path tempDir) throws IOException {
+        try (InputStream in = ForkIntegrationTest.class.getResourceAsStream(name)) {
+            Objects.requireNonNull(in, name + " not found on the classpath");
+            var target = tempDir.resolve(Path.of(name).getFileName());
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            return target.toFile();
+        }
     }
 
     private static int run(List<String> command) throws Exception {
