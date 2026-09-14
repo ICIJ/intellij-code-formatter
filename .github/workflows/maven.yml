@@ -35,6 +35,9 @@ jobs :
       - name : build and test
         run : ./mvnw -B package
 
+      - name: check style from build jar
+        run: java -jar formatter-core/target/intellij-code-formatter.jar --check formatter-core/src
+
       - name: Cache Intellij IDEA artifact
         uses: actions/cache/save@v6
         with:
