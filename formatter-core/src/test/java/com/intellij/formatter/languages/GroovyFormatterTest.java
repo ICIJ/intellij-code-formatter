@@ -161,7 +161,7 @@ class GroovyFormatterTest {
         var expected = """
                 trait Flyable {
                     abstract void fly()
-
+                
                     def land() {
                         println "Landing"
                     }

@@ -209,7 +209,7 @@ class KotlinFormatterTest {
         var input = "data class Point(val x:Int,val y:Int)\nfun main(){val(x,y)=Point(1,2)}";
         var expected = """
                 data class Point(val x: Int, val y: Int)
-
+                
                 fun main() {
                     val (x, y) = Point(1, 2)
                 }""";

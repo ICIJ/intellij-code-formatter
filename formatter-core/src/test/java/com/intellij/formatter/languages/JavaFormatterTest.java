@@ -51,7 +51,7 @@ class JavaFormatterTest {
         var input = "import java.util.*;public class Test<T>{private List<Map<String,T>>data;}";
         var expected = """
                 import java.util.*;
-
+                
                 public class Test<T> {
                     private List<Map<String, T>> data;
                 }""";
@@ -66,7 +66,7 @@ class JavaFormatterTest {
         var input = "import java.util.function.*;public class Test{Runnable r=()->System.out.println(\"hello\");Function<String,Integer>f=s->s.length();}";
         var expected = """
                 import java.util.function.*;
-
+                
                 public class Test {
                     Runnable r = () -> System.out.println("hello");
                     Function<String, Integer> f = s -> s.length();
@@ -114,10 +114,10 @@ class JavaFormatterTest {
         var expected = """
                 public sealed class Shape permits Circle, Square {
                 }
-
+                
                 final class Circle extends Shape {
                 }
-
+                
                 final class Square extends Shape {
                 }""";
 
@@ -148,7 +148,7 @@ class JavaFormatterTest {
         var input = "import java.util.*;public class Test{void m(){var list=new ArrayList<String>();list.forEach(System.out::println);list.stream().map(String::toUpperCase).toList();}}";
         var expected = """
                 import java.util.*;
-
+                
                 public class Test {
                     void m() {
                         var list = new ArrayList<String>();
@@ -248,7 +248,7 @@ class JavaFormatterTest {
         var expected = """
                 public interface Service {
                     void process();
-
+                
                     default void log() {
                         System.out.println("log");
                     }
@@ -266,7 +266,7 @@ class JavaFormatterTest {
                 public enum Status {
                     ACTIVE(1), INACTIVE(0);
                     private final int code;
-
+                
                     Status(int code) {
                         this.code = code;
                     }
@@ -285,7 +285,7 @@ class JavaFormatterTest {
                     static {
                         System.out.println("static");
                     }
-
+                
                     {
                         System.out.println("instance");
                     }

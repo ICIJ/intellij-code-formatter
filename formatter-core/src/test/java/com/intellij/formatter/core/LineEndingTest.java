@@ -19,10 +19,10 @@ class LineEndingTest {
     void formatCodeWithCRLF() throws FormattingException {
         // Create unformatted Java code with CRLF line endings (Windows style)
         var input = "public class Test{\r\n" +
-                    "void method(){\r\n" +
-                    "int x=1;\r\n" +
-                    "}\r\n" +
-                    "}";
+                "void method(){\r\n" +
+                "int x=1;\r\n" +
+                "}\r\n" +
+                "}";
 
         var result = StandaloneFormatter.formatCode(input, "Test.java");
 
@@ -40,10 +40,10 @@ class LineEndingTest {
         // Line 4: void method3(){int z=3;}
         // Line 5: }
         var input = "public class Test{\r\n" +
-                    "void method1(){int x=1;}\r\n" +
-                    "void method2(){int y=2;}\r\n" +
-                    "void method3(){int z=3;}\r\n" +
-                    "}";
+                "void method1(){int x=1;}\r\n" +
+                "void method2(){int y=2;}\r\n" +
+                "void method3(){int z=3;}\r\n" +
+                "}";
 
         System.out.println("=== Input code (with CRLF) ===");
         System.out.println(input.replace("\r", "\\r").replace("\n", "\\n\n"));
@@ -67,9 +67,9 @@ class LineEndingTest {
         // With CRLF bug, these assertions will likely fail because
         // getLineStartOffset/getLineEndOffset count offsets incorrectly
         assertEquals(true, method2Formatted,
-            "Line 3 (method2) should be formatted with spaces");
+                "Line 3 (method2) should be formatted with spaces");
         assertEquals(true, method3Formatted,
-            "Line 4 (method3) should be formatted with spaces");
+                "Line 4 (method3) should be formatted with spaces");
     }
 
     @Test
@@ -77,10 +77,10 @@ class LineEndingTest {
     void formatRangeWithLF() throws FormattingException {
         // Same code but with LF line endings (Unix style)
         var input = "public class Test{\n" +
-                    "void method1(){int x=1;}\n" +
-                    "void method2(){int y=2;}\n" +
-                    "void method3(){int z=3;}\n" +
-                    "}";
+                "void method1(){int x=1;}\n" +
+                "void method2(){int y=2;}\n" +
+                "void method3(){int z=3;}\n" +
+                "}";
 
         System.out.println("=== Input code (with LF) ===");
         System.out.println(input.replace("\n", "\\n\n"));
@@ -102,9 +102,9 @@ class LineEndingTest {
         System.out.println("method3 formatted correctly: " + method3Formatted);
 
         assertEquals(true, method2Formatted,
-            "Line 3 (method2) should be formatted with spaces");
+                "Line 3 (method2) should be formatted with spaces");
         assertEquals(true, method3Formatted,
-            "Line 4 (method3) should be formatted with spaces");
+                "Line 4 (method3) should be formatted with spaces");
     }
 
     @Test

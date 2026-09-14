@@ -24,10 +24,10 @@ import java.util.List;
 public class CodeStyleSchemesService extends CodeStyleSchemes {
 
     private final List<CodeStyleScheme> schemes = new ArrayList<>();
-    
+
     @Getter
     private final CodeStyleScheme defaultScheme;
-    
+
     @Getter
     @Setter
     private CodeStyleScheme currentScheme;

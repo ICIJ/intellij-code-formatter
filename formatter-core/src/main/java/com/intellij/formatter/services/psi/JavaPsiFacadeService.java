@@ -36,7 +36,7 @@ public class JavaPsiFacadeService extends JavaPsiFacade {
 
     @Getter
     private final Project project;
-    
+
     @Getter
     private final PsiResolveHelper resolveHelper = new MinimalPsiResolveHelper();
 

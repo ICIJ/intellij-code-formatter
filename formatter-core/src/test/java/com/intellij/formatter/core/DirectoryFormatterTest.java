@@ -91,7 +91,7 @@ class DirectoryFormatterTest {
     @DisplayName("format() records I/O failures without aborting the run")
     void formatRecordsIoFailuresAndContinues(@TempDir Path tempDir) throws IOException {
         var badFile = tempDir.resolve("Bad.java");
-        Files.write(badFile, new byte[] { (byte) 0xFF, (byte) 0xFE });
+        Files.write(badFile, new byte[]{(byte) 0xFF, (byte) 0xFE});
 
         var goodFile = tempDir.resolve("Zzz.java");
         Files.writeString(goodFile, "public class Zzz{void go(){int x=1;}}");

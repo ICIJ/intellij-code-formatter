@@ -412,7 +412,7 @@ public class StandaloneFormatter {
     private static String normalizeLineEndings(String text) {
         // Replace CRLF with LF first (order matters!)
         return text.replace("\r\n", "\n")
-                   .replace("\r", "\n");
+                .replace("\r", "\n");
     }
 
     /**
