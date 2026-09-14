@@ -92,8 +92,23 @@ public final class CodeStyleLoader {
             }
             settings.readExternal(codeStyleElement);
             settingsManager.setMainProjectCodeStyle(settings);
+            // Without this, CodeStyleSettingsManager.getCurrentSettings() ignores the settings
+            // just registered above and falls back to the default IntelliJ scheme.
+            settingsManager.USE_PER_PROJECT_SETTINGS = true;
         } catch (Exception e) {
             throw new CodeStyleLoadException("Failed to apply code style settings: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Reverts to IntelliJ's default code style scheme, undoing any style previously
+     * applied via {@link #loadFromFile(String)}.
+     */
+    public static void resetToDefault() {
+        var project = getProject();
+        var settingsManager = project.getService(ProjectCodeStyleSettingsManager.class);
+        if (settingsManager != null) {
+            settingsManager.USE_PER_PROJECT_SETTINGS = false;
         }
     }
 
