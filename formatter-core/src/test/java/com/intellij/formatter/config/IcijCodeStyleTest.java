@@ -1,14 +1,11 @@
 package com.intellij.formatter.config;
 
-import com.intellij.formatter.core.CodeStyleLoadException;
-import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
+import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.nio.file.Path;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,25 +16,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @DisplayName("ICIJ Code Style Tests")
 class IcijCodeStyleTest {
+    private CodeStyleLoader loader;
 
-    private static String icijCodeStylePath() {
-        // Loaded from the classpath, not a copy, so this test always reflects the current style.
-        var url = IcijCodeStyleTest.class.getClassLoader().getResource("icij-codestyle.xml");
-        Objects.requireNonNull(url, "icij-codestyle.xml not found on the classpath");
-        return Path.of(url.getPath()).toString();
+    @BeforeEach
+    void setUp() throws IOException {
+        loader = new CodeStyleLoader(null);
     }
-
     @AfterEach
     void resetCodeStyle() {
-        // The formatter's IntelliJ project is a JVM-wide singleton, so a custom style
-        // loaded here would otherwise leak into unrelated tests in other classes.
-        CodeStyleLoader.resetToDefault();
+        loader.resetToDefault();
     }
 
     @Test
     @DisplayName("Empty class body is kept on one line (matches real IntelliJ IDEA)")
-    void emptyClassBodyKeptOnOneLine() throws CodeStyleLoadException, FormattingException {
-        CodeStyleLoader.loadFromFile(icijCodeStylePath());
+    void emptyClassBodyKeptOnOneLine() throws Exception {
+        loader.applyFromXml();
 
         var input = "public class Test {}";
         var expected = "public class Test {}";
@@ -48,8 +41,20 @@ class IcijCodeStyleTest {
 
     @Test
     @DisplayName("Simple one-line class body is expanded to multiple lines (matches real IntelliJ IDEA)")
-    void simpleClassBodyExpandedToMultipleLines() throws CodeStyleLoadException, FormattingException {
-        CodeStyleLoader.loadFromFile(icijCodeStylePath());
+    void simpleClassBodyExpandedToMultipleLines() throws Exception {
+        loader.applyFromXml();
+
+        var input = "public class Test { int x; }";
+        var expected = "public class Test {\n    int x;\n}";
+
+        var actual = StandaloneFormatter.formatCode(input, "Test.java");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    @DisplayName("loadBundled() applies the same style as loading icij-codestyle.xml by path")
+    void loadBundled_appliesTheSameStyleAsLoadFromFile() throws Exception {
+        loader.applyFromXml();
 
         var input = "public class Test { int x; }";
         var expected = "public class Test {\n    int x;\n}";

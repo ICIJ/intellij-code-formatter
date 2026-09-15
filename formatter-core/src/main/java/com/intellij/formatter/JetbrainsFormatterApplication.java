@@ -1,7 +1,6 @@
 package com.intellij.formatter;
 
 import com.intellij.formatter.config.CodeStyleLoader;
-import com.intellij.formatter.core.CodeStyleLoadException;
 import com.intellij.formatter.core.DirectoryFormatter;
 import com.intellij.formatter.core.FormatReport;
 
@@ -23,7 +22,8 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  * java -jar formatter.jar [options] <directory>
  *
  * Options:
- *   --style, -s <path>    Load IntelliJ code style from XML file
+ *   --style, -s <path>    Load IntelliJ code style from XML file (defaults to the
+ *                         bundled ICIJ code style when omitted)
  *   --check               Check formatting without writing changes
  *   --help, -h            Show this help message
  * }</pre>
@@ -128,16 +128,13 @@ public final class JetbrainsFormatterApplication {
             initialize();
             System.err.println("Engine initialized");
 
-            if (stylePath != null) {
-                System.err.println("Loading code style from: " + stylePath);
-                CodeStyleLoader.loadFromFile(stylePath);
-                System.err.println("Code style loaded successfully");
-            }
+            new CodeStyleLoader(stylePath).applyFromXml();
+            System.err.println("Code style loaded successfully");
 
             System.err.println((checkOnly ? "Checking: " : "Formatting: ") + directoryPath);
             var report = checkOnly ? DirectoryFormatter.check(directory) : DirectoryFormatter.format(directory);
             System.exit(printReportAndComputeExitCode(report, checkOnly));
-        } catch (IOException | CodeStyleLoadException e) {
+        } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(EXIT_ERROR);
         } catch (Throwable t) {
@@ -191,6 +188,7 @@ public final class JetbrainsFormatterApplication {
         System.out.println();
         System.out.println("OPTIONS:");
         System.out.println("    -s, --style <path>  Load IntelliJ code style from XML file");
+        System.out.println("                        (defaults to the bundled ICIJ code style when omitted)");
         System.out.println("    --check              Check formatting without writing changes");
         System.out.println("    -h, --help           Show this help message");
         System.out.println("    -v, --version        Show version information");

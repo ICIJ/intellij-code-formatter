@@ -22,7 +22,6 @@ package com.intellij.formatter.core;
  * }</pre>
  *
  * @see StandaloneFormatter
- * @see CodeStyleLoadException
  */
 public class FormattingException extends Exception {
 

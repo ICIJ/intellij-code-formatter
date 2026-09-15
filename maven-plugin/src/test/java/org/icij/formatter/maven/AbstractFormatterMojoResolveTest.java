@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,37 +27,6 @@ class AbstractFormatterMojoResolveTest {
 
     private static ByteArrayInputStream payload(String content) {
         return new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Test
-    void resolveCodeStyle_noOverride_extractsBundledResourceToATempFile() throws Exception {
-        var mojo = new TestMojo();
-
-        var resolved = mojo.resolveCodeStyle();
-
-        assertTrue(resolved.isFile());
-        var content = Files.readString(resolved.toPath());
-        assertTrue(content.contains("code_scheme"));
-    }
-
-    @Test
-    void resolveCodeStyle_overridePresentAndReadable_returnsItDirectly(@TempDir Path tempDir) throws Exception {
-        var override = tempDir.resolve("custom-style.xml");
-        Files.writeString(override, "<code_scheme name=\"Custom\" version=\"1\"/>");
-        var mojo = new TestMojo();
-        mojo.codeStyle = override.toFile();
-
-        var resolved = mojo.resolveCodeStyle();
-
-        assertEquals(override.toFile(), resolved);
-    }
-
-    @Test
-    void resolveCodeStyle_overrideMissing_throws(@TempDir Path tempDir) {
-        var mojo = new TestMojo();
-        mojo.codeStyle = tempDir.resolve("does-not-exist.xml").toFile();
-
-        assertThrows(MojoExecutionException.class, mojo::resolveCodeStyle);
     }
 
     @Test

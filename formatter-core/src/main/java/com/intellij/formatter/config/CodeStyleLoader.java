@@ -1,12 +1,13 @@
 package com.intellij.formatter.config;
 
-import com.intellij.formatter.core.CodeStyleLoadException;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.psi.codeStyle.ProjectCodeStyleSettingsManager;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -25,20 +26,30 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  *
  * <p>Example usage:</p>
  * <pre>{@code
- * // Load custom code style before formatting
- * CodeStyleLoader.loadFromFile("/path/to/my-code-style.xml");
+ * // Load and apply a custom code style before formatting
+ * new CodeStyleLoader("/path/to/my-code-style.xml").applyFromXml();
  *
  * // Now format code with the loaded style
  * String formatted = StandaloneFormatter.formatCode(code, "MyClass.java");
  * }</pre>
  *
- * @see CodeStyleLoadException
  * @see com.intellij.formatter.core.StandaloneFormatter
  */
 public final class CodeStyleLoader {
 
-    private CodeStyleLoader() {
-        // Utility class - prevent instantiation
+    /**
+     * Path, on this jar's own classpath, of the ICIJ code style shipped in
+     * {@code formatter-core/src/main/resources/icij-codestyle.xml}.
+     */
+    private static final String BUNDLED_STYLE_RESOURCE = "/icij-codestyle.xml";
+    private final String content;
+
+    public CodeStyleLoader(String filePath) throws IOException {
+        if (filePath == null) {
+            content = loadBundled();
+        } else {
+            content = loadFromFile(filePath);
+        }
     }
 
     /**
@@ -49,70 +60,80 @@ public final class CodeStyleLoader {
      * project configurations, and component wrappers.</p>
      *
      * @param filePath the absolute path to the code style XML file
-     * @throws CodeStyleLoadException if the file cannot be read, parsed, or applied
+     * @throws IOException if the file cannot be read, parsed, or applied
      */
-    public static void loadFromFile(@NotNull String filePath) throws CodeStyleLoadException {
+    public String loadFromFile(@NotNull String filePath) throws IOException {
+        System.err.println("Loading code style from: " + filePath);
         var path = Path.of(filePath);
         if (!Files.exists(path)) {
-            throw new CodeStyleLoadException("Code style file not found: " + filePath);
+            throw new IOException("Code style file not found: " + filePath);
         }
+        return Files.readString(path);
+    }
 
-        initialize();
-
-        try {
-            var content = Files.readString(path);
-            var rootElement = JDOMUtil.load(content);
-            applySettings(rootElement);
-        } catch (IOException e) {
-            throw new CodeStyleLoadException("Failed to read code style file: " + e.getMessage(), e);
-        } catch (CodeStyleLoadException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new CodeStyleLoadException("Failed to parse code style file: " + e.getMessage(), e);
+    /**
+     * Loads the ICIJ code style bundled in this jar (see {@link #BUNDLED_STYLE_RESOURCE}), for
+     * callers - such as the CLI and the Maven plugin, which forks it - that want ICIJ's style
+     * applied by default whenever no explicit style file is given. This resource lives here,
+     * on formatter-core's own classpath, rather than being resolved by a caller in a different
+     * jar/classloader (e.g. the Maven plugin), which cannot see inside this jar's resources.
+     *
+     * @throws IOException if the bundled resource is missing or fails to parse
+     */
+    String loadBundled() throws IOException {
+        System.err.println("Loading bundled ICIJ code style");
+        try (var in = CodeStyleLoader.class.getResourceAsStream(BUNDLED_STYLE_RESOURCE)) {
+            if (in == null) {
+                throw new IOException(
+                        "Bundled " + BUNDLED_STYLE_RESOURCE + " resource not found on the classpath");
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
-    private static void applySettings(Element rootElement) throws CodeStyleLoadException {
+    public CodeStyleLoader applyFromXml() throws IOException, JDOMException {
+        initialize();
+        applySettings(JDOMUtil.load(content));
+        return this;
+    }
+
+    private void applySettings(Element rootElement) {
         var project = getProject();
         var settingsManager = project.getService(ProjectCodeStyleSettingsManager.class);
 
         if (settingsManager == null) {
-            throw new CodeStyleLoadException("ProjectCodeStyleSettingsManager not available");
+            throw new IllegalStateException("ProjectCodeStyleSettingsManager not available");
         }
 
         var codeStyleElement = findCodeStyleElement(rootElement);
         if (codeStyleElement == null) {
-            throw new CodeStyleLoadException("No code style settings found in file");
+            throw new IllegalStateException("No code style settings found in file");
         }
-
-        try {
-            var settings = settingsManager.getMainProjectCodeStyle();
-            if (settings == null) {
-                settings = settingsManager.createSettings();
-            }
-            settings.readExternal(codeStyleElement);
-            settingsManager.setMainProjectCodeStyle(settings);
-            // Without this, CodeStyleSettingsManager.getCurrentSettings() ignores the settings
-            // just registered above and falls back to the default IntelliJ scheme.
-            settingsManager.USE_PER_PROJECT_SETTINGS = true;
-        } catch (Exception e) {
-            throw new CodeStyleLoadException("Failed to apply code style settings: " + e.getMessage(), e);
+        var settings = settingsManager.getMainProjectCodeStyle();
+        if (settings == null) {
+            settings = settingsManager.createSettings();
         }
+        settings.readExternal(codeStyleElement);
+        settingsManager.setMainProjectCodeStyle(settings);
+        // Without this, CodeStyleSettingsManager.getCurrentSettings() ignores the settings
+        // just registered above and falls back to the default IntelliJ scheme.
+        settingsManager.USE_PER_PROJECT_SETTINGS = true;
     }
 
     /**
      * Reverts to IntelliJ's default code style scheme, undoing any style previously
      * applied via {@link #loadFromFile(String)}.
      */
-    public static void resetToDefault() {
+    public CodeStyleLoader resetToDefault() {
         var project = getProject();
         var settingsManager = project.getService(ProjectCodeStyleSettingsManager.class);
         if (settingsManager != null) {
             settingsManager.USE_PER_PROJECT_SETTINGS = false;
         }
+        return this;
     }
 
-    private static Element findCodeStyleElement(Element root) {
+    private Element findCodeStyleElement(Element root) {
         var rootName = root.getName();
 
         if ("code_scheme".equals(rootName)) {

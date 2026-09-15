@@ -36,4 +36,11 @@ class AbstractFormatterMojoBuildCommandTest {
         assertFalse(command.contains("--check"));
         assertEquals(directory.getAbsolutePath(), command.get(command.size() - 1));
     }
+
+    @Test
+    void noCodeStyleOverride_omitsStyleFlag_soTheForkedFormatterUsesItsBundledDefault() {
+        var command = AbstractFormatterMojo.buildCommand("/usr/bin/java", coreJar, null, false, directory);
+
+        assertFalse(command.contains("--style"));
+    }
 }

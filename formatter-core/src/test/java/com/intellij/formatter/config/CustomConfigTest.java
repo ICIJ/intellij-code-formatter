@@ -1,12 +1,13 @@
 package com.intellij.formatter.config;
 
-import com.intellij.formatter.core.CodeStyleLoadException;
-import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
+import static java.util.Optional.ofNullable;
+import org.jdom.JDOMException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -17,50 +18,47 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @DisplayName("Custom Config Tests")
 class CustomConfigTest {
-
-    private String getResourcePath(String resourceName) {
-        var url = getClass().getClassLoader().getResource(resourceName);
-        Objects.requireNonNull(url, "Resource not found: " + resourceName);
-        return Path.of(url.getPath()).toString();
-    }
+    private CodeStyleLoader loader;
 
     @AfterEach
-    void resetCodeStyle() {
-        // The formatter's IntelliJ project is a JVM-wide singleton, so a custom style
-        // loaded here would otherwise leak into unrelated tests in other classes.
-        CodeStyleLoader.resetToDefault();
+    void tearDown() {
+        ofNullable(loader).map(CodeStyleLoader::resetToDefault);
     }
 
     @Test
     @DisplayName("Load 2-space indent config")
-    void loadTwoSpaceConfig() throws CodeStyleLoadException {
+    void loadTwoSpaceConfig() {
         var configPath = getResourcePath("code-style-2-spaces.xml");
 
-        assertDoesNotThrow(() -> CodeStyleLoader.loadFromFile(configPath));
+        assertDoesNotThrow(() -> {
+            loader = new CodeStyleLoader(configPath).applyFromXml();
+        });
     }
 
     @Test
     @DisplayName("Load tabs config")
-    void loadTabsConfig() throws CodeStyleLoadException {
+    void loadTabsConfig() {
         var configPath = getResourcePath("code-style-tabs.xml");
 
-        assertDoesNotThrow(() -> CodeStyleLoader.loadFromFile(configPath));
+        assertDoesNotThrow(() -> {
+            loader = new CodeStyleLoader(configPath).applyFromXml();
+        });
     }
 
     @Test
     @DisplayName("Load nonexistent file throws exception")
     void loadNonexistentFile() {
-        var exception = assertThrows(CodeStyleLoadException.class,
-                () -> CodeStyleLoader.loadFromFile("/nonexistent/path/config.xml"));
+        var exception = assertThrows(IOException.class,
+                () -> new CodeStyleLoader("/nonexistent/path/config.xml"));
 
         assertTrue(exception.getMessage().contains("not found"));
     }
 
     @Test
     @DisplayName("Java formatting uses 2-space indent after config load")
-    void javaFormattingWithTwoSpaces() throws CodeStyleLoadException, FormattingException {
+    void javaFormattingWithTwoSpaces() throws Exception {
         var configPath = getResourcePath("code-style-2-spaces.xml");
-        CodeStyleLoader.loadFromFile(configPath);
+        loader = new CodeStyleLoader(configPath).applyFromXml();
 
         var input = "public class Test{void method(){int x=1;}}";
         var expected = """
@@ -76,9 +74,8 @@ class CustomConfigTest {
 
     @Test
     @DisplayName("Java formatting works after loading tabs config")
-    void javaFormattingWithTabs() throws CodeStyleLoadException, FormattingException {
-        var configPath = getResourcePath("code-style-tabs.xml");
-        CodeStyleLoader.loadFromFile(configPath);
+    void javaFormattingWithTabs() throws Exception {
+        loader = new CodeStyleLoader(getResourcePath("code-style-tabs.xml")).applyFromXml();
 
         var input = "public class Test{void method(){int x=1;}}";
         var actual = StandaloneFormatter.formatCode(input, "Test.java");
@@ -92,9 +89,9 @@ class CustomConfigTest {
 
     @Test
     @DisplayName("XML formatting uses 2-space indent after config load")
-    void xmlFormattingWithTwoSpaces() throws CodeStyleLoadException, FormattingException {
+    void xmlFormattingWithTwoSpaces() throws Exception {
         var configPath = getResourcePath("code-style-2-spaces.xml");
-        CodeStyleLoader.loadFromFile(configPath);
+        loader = new CodeStyleLoader(configPath).applyFromXml();
 
         var input = "<root><child><nested>text</nested></child></root>";
         var actual = StandaloneFormatter.formatCode(input, "test.xml");
@@ -107,9 +104,9 @@ class CustomConfigTest {
 
     @Test
     @DisplayName("Kotlin formatting uses 2-space indent after config load")
-    void kotlinFormattingWithTwoSpaces() throws CodeStyleLoadException, FormattingException {
+    void kotlinFormattingWithTwoSpaces() throws Exception {
         var configPath = getResourcePath("code-style-2-spaces.xml");
-        CodeStyleLoader.loadFromFile(configPath);
+        loader = new CodeStyleLoader(configPath).applyFromXml();
 
         var input = "class Calculator{fun add(a:Int,b:Int):Int{return a+b}}";
         var actual = StandaloneFormatter.formatCode(input, "Calculator.kt");
@@ -120,9 +117,9 @@ class CustomConfigTest {
 
     @Test
     @DisplayName("Groovy formatting uses 2-space indent after config load")
-    void groovyFormattingWithTwoSpaces() throws CodeStyleLoadException, FormattingException {
+    void groovyFormattingWithTwoSpaces() throws Exception {
         var configPath = getResourcePath("code-style-2-spaces.xml");
-        CodeStyleLoader.loadFromFile(configPath);
+        loader = new CodeStyleLoader(configPath).applyFromXml();
 
         var input = "class Person{String name}";
         var actual = StandaloneFormatter.formatCode(input, "Person.groovy");
@@ -133,13 +130,13 @@ class CustomConfigTest {
 
     @Test
     @DisplayName("Config loading is idempotent")
-    void configLoadingIdempotent() throws CodeStyleLoadException, FormattingException {
+    void configLoadingIdempotent() throws Exception {
         var configPath = getResourcePath("code-style-2-spaces.xml");
 
         // Load config multiple times
-        CodeStyleLoader.loadFromFile(configPath);
-        CodeStyleLoader.loadFromFile(configPath);
-        CodeStyleLoader.loadFromFile(configPath);
+        loader = new CodeStyleLoader(configPath).applyFromXml();
+        loader = new CodeStyleLoader(configPath).applyFromXml();
+        loader = new CodeStyleLoader(configPath).applyFromXml();
 
         // Formatting should still work
         var input = "public class Test{void method(){}}";
@@ -151,15 +148,15 @@ class CustomConfigTest {
 
     @Test
     @DisplayName("Switching between configs works")
-    void switchingBetweenConfigs() throws CodeStyleLoadException, FormattingException {
+    void switchingBetweenConfigs() throws Exception {
         var input = "public class Test{void method(){int x=1;}}";
 
         // Load 2-space config
-        CodeStyleLoader.loadFromFile(getResourcePath("code-style-2-spaces.xml"));
+        loader = new CodeStyleLoader(getResourcePath("code-style-2-spaces.xml")).applyFromXml();
         var with2Spaces = StandaloneFormatter.formatCode(input, "Test.java");
 
         // Load tabs config
-        CodeStyleLoader.loadFromFile(getResourcePath("code-style-tabs.xml"));
+        loader = new CodeStyleLoader(getResourcePath("code-style-tabs.xml")).applyFromXml();
         var withTabs = StandaloneFormatter.formatCode(input, "Test.java");
 
         // Results should be different (one uses spaces, other uses tabs)
@@ -174,16 +171,20 @@ class CustomConfigTest {
     @DisplayName("Invalid XML throws exception")
     void invalidXmlThrowsException() {
         // Create a temp file with invalid XML
-        var exception = assertThrows(CodeStyleLoadException.class, () -> {
+        assertThrows(JDOMException.class, () -> {
             var tempFile = java.io.File.createTempFile("invalid-config", ".xml");
             java.nio.file.Files.writeString(tempFile.toPath(), "not valid xml {{{");
             try {
-                CodeStyleLoader.loadFromFile(tempFile.getAbsolutePath());
+                loader = new CodeStyleLoader(tempFile.getAbsolutePath()).applyFromXml();
             } finally {
                 tempFile.delete();
             }
         });
+    }
 
-        assertTrue(exception.getMessage().contains("parse") || exception.getMessage().contains("Failed"));
+    private String getResourcePath(String resourceName) {
+        var url = getClass().getClassLoader().getResource(resourceName);
+        Objects.requireNonNull(url, "Resource not found: " + resourceName);
+        return Path.of(url.getPath()).toString();
     }
 }
