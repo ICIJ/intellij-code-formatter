@@ -130,19 +130,24 @@ public final class JetbrainsFormatterApplication {
 
             if (stylePath != null) {
                 System.err.println("Loading code style from: " + stylePath);
-                try {
-                    CodeStyleLoader.loadFromFile(stylePath);
-                    System.err.println("Code style loaded successfully");
-                } catch (CodeStyleLoadException e) {
-                    System.err.println("Warning: Failed to load code style: " + e.getMessage());
-                }
+                CodeStyleLoader.loadFromFile(stylePath);
+                System.err.println("Code style loaded successfully");
             }
 
             System.err.println((checkOnly ? "Checking: " : "Formatting: ") + directoryPath);
             var report = checkOnly ? DirectoryFormatter.check(directory) : DirectoryFormatter.format(directory);
             System.exit(printReportAndComputeExitCode(report, checkOnly));
-        } catch (IOException e) {
-            System.err.println("IO error: " + e.getMessage());
+        } catch (IOException | CodeStyleLoadException e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(EXIT_ERROR);
+        } catch (Throwable t) {
+            // Unexpected failure (e.g. a missing platform class from a broken build):
+            // print the full trace rather than just the message, since we don't know
+            // what this is or where it came from. Caught here, at the true top of the
+            // stack, so it exits EXIT_ERROR instead of colliding with the JVM's default
+            // exit code 1, which this CLI already uses for EXIT_NOT_FORMATTED.
+            System.err.println("Error: unexpected failure");
+            t.printStackTrace();
             System.exit(EXIT_ERROR);
         }
     }

@@ -88,12 +88,13 @@ public class StandaloneFormatter {
      */
     public static String formatCode(@NotNull String code, @NotNull String fileName) throws FormattingException {
         initialize();
-        FormatterBootstrap.ensureLanguageRegistered(fileName);
         var project = getProject();
 
         BootstrapLogger.debug(COMPONENT, "Formatting: " + fileName);
 
         try {
+            FormatterBootstrap.ensureLanguageRegistered(fileName);
+
             // Detect original line ending to preserve it after formatting
             var originalLineEnding = detectLineEnding(code);
 
@@ -127,7 +128,6 @@ public class StandaloneFormatter {
         } catch (FormattingException e) {
             throw e;
         } catch (Exception e) {
-            BootstrapLogger.warn(COMPONENT, "Formatting failed for " + fileName, e);
             throw new FormattingException("Formatting failed: " + e.getMessage(), e);
         }
     }
@@ -150,12 +150,13 @@ public class StandaloneFormatter {
                                          int startLine,
                                          int endLine) throws FormattingException {
         initialize();
-        FormatterBootstrap.ensureLanguageRegistered(fileName);
         var project = getProject();
 
         BootstrapLogger.debug(COMPONENT, "Formatting range: " + fileName + " [" + startLine + ":" + endLine + "]");
 
         try {
+            FormatterBootstrap.ensureLanguageRegistered(fileName);
+
             // Detect original line ending to preserve it after formatting
             var originalLineEnding = detectLineEnding(code);
 
@@ -197,7 +198,6 @@ public class StandaloneFormatter {
         } catch (FormattingException e) {
             throw e;
         } catch (Exception e) {
-            BootstrapLogger.warn(COMPONENT, "Range formatting failed for " + fileName, e);
             throw new FormattingException("Range formatting failed: " + e.getMessage(), e);
         }
     }
@@ -244,12 +244,12 @@ public class StandaloneFormatter {
     /**
      * Formats the entire PsiFile using CodeStyleManager.
      */
-    private static PsiFile formatPsiFile(PsiFile psiFile) throws Exception {
+    private static PsiFile formatPsiFile(PsiFile psiFile) throws InvocationTargetException, InterruptedException {
         var project = getProject();
         var codeStyleManager = CodeStyleManager.getInstance(project);
 
         final PsiFile[] result = new PsiFile[1];
-        final Exception[] error = new Exception[1];
+        final RuntimeException[] error = new RuntimeException[1];
 
         // Formatting must run in a write action within a command
         Runnable formatTask = () -> CommandProcessor.getInstance().executeCommand(
@@ -257,7 +257,7 @@ public class StandaloneFormatter {
                 () -> getApplication().runWriteAction(() -> {
                     try {
                         result[0] = (PsiFile) codeStyleManager.reformat(psiFile);
-                    } catch (Exception e) {
+                    } catch (RuntimeException e) {
                         error[0] = e;
                     }
                 }),
@@ -277,19 +277,20 @@ public class StandaloneFormatter {
     /**
      * Formats a range within the PsiFile using CodeStyleManager.
      */
-    private static PsiFile formatPsiFileRange(PsiFile psiFile, int startOffset, int endOffset) throws Exception {
+    private static PsiFile formatPsiFileRange(PsiFile psiFile, int startOffset, int endOffset)
+            throws InvocationTargetException, InterruptedException {
         var project = getProject();
         var codeStyleManager = CodeStyleManager.getInstance(project);
 
         final PsiFile[] result = new PsiFile[1];
-        final Exception[] error = new Exception[1];
+        final RuntimeException[] error = new RuntimeException[1];
 
         Runnable formatTask = () -> CommandProcessor.getInstance().executeCommand(
                 project,
                 () -> getApplication().runWriteAction(() -> {
                     try {
                         result[0] = (PsiFile) codeStyleManager.reformatRange(psiFile, startOffset, endOffset);
-                    } catch (Exception e) {
+                    } catch (RuntimeException e) {
                         error[0] = e;
                     }
                 }),
