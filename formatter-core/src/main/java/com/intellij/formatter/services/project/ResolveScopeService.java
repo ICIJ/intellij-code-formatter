@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
  */
 @RequiredArgsConstructor
 public class ResolveScopeService extends ResolveScopeManager {
-
     private final Project project;
 
     @Override

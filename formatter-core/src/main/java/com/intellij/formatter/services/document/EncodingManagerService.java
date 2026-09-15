@@ -5,11 +5,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -21,7 +19,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @see EncodingManager
  */
 public class EncodingManagerService extends EncodingManager {
-
     @Override
     public @NotNull Collection<Charset> getFavorites() {
         return List.of(UTF_8);

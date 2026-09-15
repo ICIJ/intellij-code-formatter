@@ -22,7 +22,6 @@ import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
  * @see PropertiesCodeStyleSettings
  */
 public class MinimalPropertiesCodeStyleProvider extends AbstractCodeStyleProvider {
-
     /**
      * Creates a new Properties code style provider with default settings.
      */

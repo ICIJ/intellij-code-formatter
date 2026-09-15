@@ -22,10 +22,8 @@ package com.intellij.formatter.core;
  * }</pre>
  *
  * @see StandaloneFormatter
- * @see CodeStyleLoadException
  */
 public class FormattingException extends Exception {
-
     /**
      * Constructs a new formatting exception with the specified detail message.
      *

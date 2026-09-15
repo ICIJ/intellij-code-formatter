@@ -13,5 +13,4 @@ import java.util.Map;
  * @param failures   files that threw a {@link FormattingException}, mapped
  *                    to that exception's message; processing continued past them
  */
-public record FormatReport(int totalFiles, List<Path> changed, Map<Path, String> failures) {
-}
+public record FormatReport(int totalFiles, List<Path> changed, Map<Path, String> failures) {}

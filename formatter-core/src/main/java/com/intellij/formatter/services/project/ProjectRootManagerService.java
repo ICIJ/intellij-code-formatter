@@ -10,7 +10,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +24,6 @@ import java.util.Set;
  * @see ProjectFileIndexService
  */
 public class ProjectRootManagerService extends ProjectRootManager {
-
     private final ProjectFileIndex fileIndex = new ProjectFileIndexService();
 
     @Override
@@ -64,7 +62,8 @@ public class ProjectRootManagerService extends ProjectRootManager {
     }
 
     @Override
-    public @NotNull List<VirtualFile> getModuleSourceRoots(@NotNull Set<? extends JpsModuleSourceRootType<?>> rootTypes) {
+    public @NotNull List<VirtualFile> getModuleSourceRoots(
+            @NotNull Set<? extends JpsModuleSourceRootType<?>> rootTypes) {
         return List.of();
     }
 

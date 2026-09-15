@@ -63,6 +63,10 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
     abstract void handleExitCode(int exitCode, List<String> report)
             throws MojoExecutionException, MojoFailureException;
 
+    /**
+     * @param codeStyleFile the user's {@code <codeStyle>} override, or {@code null} to let the
+     *                      forked formatter fall back to its own bundled ICIJ code style
+     */
     static List<String> buildCommand(String javaExecutable, File coreJar, File codeStyleFile,
                                       boolean checkOnly, File directory) {
         var command = new ArrayList<String>();
@@ -71,34 +75,15 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
         command.add("-Djava.awt.headless=true");
         command.add("-jar");
         command.add(coreJar.getAbsolutePath());
-        command.add("--style");
-        command.add(codeStyleFile.getAbsolutePath());
+        if (codeStyleFile != null) {
+            command.add("--style");
+            command.add(codeStyleFile.getAbsolutePath());
+        }
         if (checkOnly) {
             command.add("--check");
         }
         command.add(directory.getAbsolutePath());
         return command;
-    }
-
-    File resolveCodeStyle() throws MojoExecutionException {
-        if (codeStyle != null) {
-            if (!codeStyle.isFile()) {
-                throw new MojoExecutionException("codeStyle file not found: " + codeStyle);
-            }
-            return codeStyle;
-        }
-
-        try (InputStream in = getClass().getResourceAsStream("/icij-codestyle.xml")) {
-            if (in == null) {
-                throw new MojoExecutionException("Bundled /icij-codestyle.xml resource not found on the plugin classpath");
-            }
-            var tempFile = File.createTempFile("icij-codestyle", ".xml");
-            tempFile.deleteOnExit();
-            Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            return tempFile;
-        } catch (IOException e) {
-            throw new MojoExecutionException("Failed to extract the bundled codestyle", e);
-        }
     }
 
     /**
@@ -172,9 +157,8 @@ public abstract class AbstractFormatterMojo extends AbstractMojo {
         }
 
         var coreJar = resolveCoreJar();
-        var codeStyleFile = resolveCodeStyle();
         var javaExecutable = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-        var command = buildCommand(javaExecutable, coreJar, codeStyleFile, checkOnly(), directory);
+        var command = buildCommand(javaExecutable, coreJar, codeStyle, checkOnly(), directory);
 
         var result = runProcess(command);
         handleExitCode(result.exitCode(), result.report());

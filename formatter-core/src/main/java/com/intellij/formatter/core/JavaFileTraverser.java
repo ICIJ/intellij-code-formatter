@@ -1,7 +1,6 @@
 package com.intellij.formatter.core;
 
 import lombok.experimental.UtilityClass;
-
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -19,9 +18,7 @@ import java.util.Set;
  */
 @UtilityClass
 public class JavaFileTraverser {
-
-    private static final Set<String> EXCLUDED_DIR_NAMES =
-            Set.of(".git", "build", "target", "out", "node_modules");
+    private static final Set<String> EXCLUDED_DIR_NAMES = Set.of(".git", "build", "target", "out", "node_modules");
 
     /**
      * Finds all {@code .java} files under {@code root}, skipping any subtree

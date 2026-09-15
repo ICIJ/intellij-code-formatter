@@ -17,18 +17,13 @@ import org.jetbrains.annotations.NotNull;
  * @see DocumentCommitProcessor
  */
 public class DocumentCommitService implements DocumentCommitProcessor {
-
     @Override
-    public void commitSynchronously(@NotNull Document document,
-                                    @NotNull Project project,
-                                    @NotNull PsiFile psiFile) {
+    public void commitSynchronously(@NotNull Document document, @NotNull Project project, @NotNull PsiFile psiFile) {
     }
 
     @Override
-    public void commitAsynchronously(@NotNull Project project,
-                                     @NotNull PsiDocumentManagerBase documentManager,
-                                     @NotNull Document document,
-                                     @NotNull Object reason,
+    public void commitAsynchronously(@NotNull Project project, @NotNull PsiDocumentManagerBase documentManager,
+                                     @NotNull Document document, @NotNull Object reason,
                                      @NotNull ModalityState modality) {
     }
 }

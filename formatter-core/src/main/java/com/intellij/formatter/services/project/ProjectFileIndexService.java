@@ -11,7 +11,6 @@ import com.intellij.platform.workspace.jps.entities.SdkEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +24,6 @@ import java.util.Set;
  * @see ProjectFileIndex
  */
 public class ProjectFileIndexService implements ProjectFileIndex {
-
     @Override
     public boolean isInProject(@NotNull VirtualFile file) {
         return true;
@@ -157,8 +155,7 @@ public class ProjectFileIndexService implements ProjectFileIndex {
     }
 
     @Override
-    public boolean iterateContentUnderDirectory(@NotNull VirtualFile dir,
-                                                @NotNull ContentIterator processor,
+    public boolean iterateContentUnderDirectory(@NotNull VirtualFile dir, @NotNull ContentIterator processor,
                                                 @Nullable VirtualFileFilter filter) {
         return true;
     }

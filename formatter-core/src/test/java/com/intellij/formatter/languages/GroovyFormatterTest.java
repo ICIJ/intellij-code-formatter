@@ -4,7 +4,6 @@ import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -12,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @DisplayName("Groovy Formatter Tests")
 class GroovyFormatterTest {
-
     @Test
     @DisplayName("Simple class with properties")
     void simpleClassWithProperties() throws FormattingException {

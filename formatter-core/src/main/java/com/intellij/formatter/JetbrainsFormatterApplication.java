@@ -1,14 +1,11 @@
 package com.intellij.formatter;
 
 import com.intellij.formatter.config.CodeStyleLoader;
-import com.intellij.formatter.core.CodeStyleLoadException;
 import com.intellij.formatter.core.DirectoryFormatter;
 import com.intellij.formatter.core.FormatReport;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
 
 /**
@@ -23,7 +20,8 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  * java -jar formatter.jar [options] <directory>
  *
  * Options:
- *   --style, -s <path>    Load IntelliJ code style from XML file
+ *   --style, -s <path>    Load IntelliJ code style from XML file (defaults to the
+ *                         bundled ICIJ code style when omitted)
  *   --check               Check formatting without writing changes
  *   --help, -h            Show this help message
  * }</pre>
@@ -44,7 +42,6 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  * @see CodeStyleLoader
  */
 public final class JetbrainsFormatterApplication {
-
     private static final String VERSION = "2025.3.2";
     private static final int EXIT_SUCCESS = 0;
     private static final int EXIT_NOT_FORMATTED = 1;
@@ -90,8 +87,8 @@ public final class JetbrainsFormatterApplication {
                     }
                 }
                 case "--lines" -> {
-                    System.err.println("Error: --lines was removed; the CLI now formats/checks "
-                            + "whole directories. See CHANGELOG.md.");
+                    System.err.println("Error: --lines was removed; the CLI now formats/checks " +
+                                       "whole directories. See CHANGELOG.md.");
                     System.exit(EXIT_ERROR);
                 }
                 default -> {
@@ -102,8 +99,8 @@ public final class JetbrainsFormatterApplication {
                     } else if (directoryPath == null) {
                         directoryPath = args[i];
                     } else {
-                        System.err.println("Error: Multiple directories specified: "
-                                + directoryPath + " and " + args[i]);
+                        System.err.println(
+                                "Error: Multiple directories specified: " + directoryPath + " and " + args[i]);
                         printUsage();
                         System.exit(EXIT_ERROR);
                     }
@@ -128,21 +125,23 @@ public final class JetbrainsFormatterApplication {
             initialize();
             System.err.println("Engine initialized");
 
-            if (stylePath != null) {
-                System.err.println("Loading code style from: " + stylePath);
-                try {
-                    CodeStyleLoader.loadFromFile(stylePath);
-                    System.err.println("Code style loaded successfully");
-                } catch (CodeStyleLoadException e) {
-                    System.err.println("Warning: Failed to load code style: " + e.getMessage());
-                }
-            }
+            new CodeStyleLoader(stylePath).applyFromXml();
+            System.err.println("Code style loaded successfully");
 
             System.err.println((checkOnly ? "Checking: " : "Formatting: ") + directoryPath);
             var report = checkOnly ? DirectoryFormatter.check(directory) : DirectoryFormatter.format(directory);
             System.exit(printReportAndComputeExitCode(report, checkOnly));
         } catch (IOException e) {
-            System.err.println("IO error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
+            System.exit(EXIT_ERROR);
+        } catch (Throwable t) {
+            // Unexpected failure (e.g. a missing platform class from a broken build):
+            // print the full trace rather than just the message, since we don't know
+            // what this is or where it came from. Caught here, at the true top of the
+            // stack, so it exits EXIT_ERROR instead of colliding with the JVM's default
+            // exit code 1, which this CLI already uses for EXIT_NOT_FORMATTED.
+            System.err.println("Error: unexpected failure");
+            t.printStackTrace();
             System.exit(EXIT_ERROR);
         }
     }
@@ -150,8 +149,8 @@ public final class JetbrainsFormatterApplication {
     private static int printReportAndComputeExitCode(FormatReport report, boolean checkOnly) {
         if (checkOnly) {
             report.changed().forEach(System.out::println);
-            System.out.println(report.changed().size() + " of " + report.totalFiles()
-                    + " files are not formatted correctly");
+            System.out.println(
+                    report.changed().size() + " of " + report.totalFiles() + " files are not formatted correctly");
         } else {
             report.changed().forEach(path -> System.out.println("Formatted: " + path));
             System.out.println("Formatted " + report.changed().size() + " of " + report.totalFiles() + " files");
@@ -176,7 +175,8 @@ public final class JetbrainsFormatterApplication {
     private static void printHelp() {
         System.out.println("idea-format " + VERSION + " - IntelliJ IDEA Code Formatter");
         System.out.println();
-        System.out.println("Recursively formats .java files under a directory using IntelliJ IDEA's formatting engine.");
+        System.out.println(
+                "Recursively formats .java files under a directory using IntelliJ IDEA's formatting engine.");
         System.out.println();
         System.out.println("USAGE:");
         System.out.println("    idea-format [OPTIONS] <directory>");
@@ -186,6 +186,7 @@ public final class JetbrainsFormatterApplication {
         System.out.println();
         System.out.println("OPTIONS:");
         System.out.println("    -s, --style <path>  Load IntelliJ code style from XML file");
+        System.out.println("                        (defaults to the bundled ICIJ code style when omitted)");
         System.out.println("    --check              Check formatting without writing changes");
         System.out.println("    -h, --help           Show this help message");
         System.out.println("    -v, --version        Show version information");

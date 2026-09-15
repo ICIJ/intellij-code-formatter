@@ -11,7 +11,6 @@ import com.intellij.util.concurrency.TransferredWriteActionService;
  * @see TransferredWriteActionService
  */
 public class SimpleTransferredWriteActionService implements TransferredWriteActionService {
-
     @Override
     public void runOnEdtWithTransferredWriteActionAndWait(Runnable runnable) {
         runnable.run();

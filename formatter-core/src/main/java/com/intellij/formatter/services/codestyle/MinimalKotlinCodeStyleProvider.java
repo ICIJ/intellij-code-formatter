@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.idea.formatter.KotlinCommonCodeStyleSettings;
  * @see KotlinCodeStyleSettings
  */
 public class MinimalKotlinCodeStyleProvider extends AbstractCodeStyleProvider {
-
     /**
      * Creates a new Kotlin code style provider with default settings.
      */

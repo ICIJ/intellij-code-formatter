@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
  * @see FormattingProgressCallbackFactory
  */
 public class FormattingProgressCallbackService implements FormattingProgressCallbackFactory {
-
     @Override
     public @Nullable FormattingProgressCallback createProgressCallback(@NotNull Project project,
                                                                        @NotNull PsiFile psiFile,

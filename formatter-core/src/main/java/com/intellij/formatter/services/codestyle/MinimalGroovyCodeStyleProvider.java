@@ -23,7 +23,6 @@ import org.jetbrains.plugins.groovy.codeStyle.GroovyCodeStyleSettings;
  * @see GroovyCodeStyleSettings
  */
 public class MinimalGroovyCodeStyleProvider extends AbstractCodeStyleProvider {
-
     /**
      * Creates a new Groovy code style provider with default settings.
      */

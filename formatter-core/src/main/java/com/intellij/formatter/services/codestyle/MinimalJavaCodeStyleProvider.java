@@ -21,7 +21,6 @@ import com.intellij.psi.codeStyle.JavaCodeStyleSettings;
  * @see JavaCodeStyleSettings
  */
 public class MinimalJavaCodeStyleProvider extends AbstractCodeStyleProvider {
-
     /**
      * Creates a new Java code style provider with default settings.
      */

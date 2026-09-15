@@ -4,7 +4,6 @@ import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @DisplayName("XML Formatter Tests")
 class XmlFormatterTest {
-
     @Test
     @DisplayName("Simple XML element - content preserved")
     void simpleXmlElement() throws FormattingException {
@@ -177,7 +175,8 @@ class XmlFormatterTest {
     @Test
     @DisplayName("Maven POM file - content preserved")
     void mavenPomFile() throws FormattingException {
-        var input = "<project><groupId>com.example</groupId><artifactId>test</artifactId><version>1.0</version></project>";
+        var input =
+                "<project><groupId>com.example</groupId><artifactId>test</artifactId><version>1.0</version></project>";
 
         var actual = StandaloneFormatter.formatCode(input, "pom.xml");
 
