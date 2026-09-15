@@ -36,7 +36,6 @@ import com.intellij.openapi.application.ApplicationManager;
  * @see MockApplication
  */
 public final class HeadlessMockApplication extends MockApplication {
-
     /**
      * Private constructor - use {@link #create(Disposable)} factory method.
      *

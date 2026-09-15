@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.plugins.groovy.GroovyFileType;
 import org.jetbrains.yaml.YAMLFileType;
-
 import java.util.List;
 
 /**
@@ -37,7 +36,6 @@ import java.util.List;
  * @see FileTypeManager
  */
 public class FileTypeManagerService extends FileTypeManager {
-
     @Override
     public @NotNull FileType getFileTypeByFileName(@NotNull @NonNls String fileName) {
         return getFileTypeByExtension(getExtension(fileName));
@@ -79,16 +77,9 @@ public class FileTypeManagerService extends FileTypeManager {
 
     @Override
     public FileType @NotNull [] getRegisteredFileTypes() {
-        return new FileType[]{
-                JavaFileType.INSTANCE,
-                XmlFileType.INSTANCE,
-                JsonFileType.INSTANCE,
-                GroovyFileType.GROOVY_FILE_TYPE,
-                KotlinFileType.INSTANCE,
-                PropertiesFileType.INSTANCE,
-                YAMLFileType.YML,
-                PlainTextFileType.INSTANCE
-        };
+        return new FileType[] {JavaFileType.INSTANCE, XmlFileType.INSTANCE, JsonFileType.INSTANCE,
+                GroovyFileType.GROOVY_FILE_TYPE, KotlinFileType.INSTANCE, PropertiesFileType.INSTANCE, YAMLFileType.YML,
+                PlainTextFileType.INSTANCE};
     }
 
     @Override
@@ -114,25 +105,25 @@ public class FileTypeManagerService extends FileTypeManager {
 
     public String @NotNull [] getAssociatedExtensions(@NotNull FileType type) {
         if (type == JavaFileType.INSTANCE) {
-            return new String[]{"java"};
+            return new String[] {"java"};
         }
         if (type == XmlFileType.INSTANCE) {
-            return new String[]{"xml", "xsd", "xsl", "xslt", "wsdl", "fxml", "pom", "html", "htm", "xhtml"};
+            return new String[] {"xml", "xsd", "xsl", "xslt", "wsdl", "fxml", "pom", "html", "htm", "xhtml"};
         }
         if (type == JsonFileType.INSTANCE) {
-            return new String[]{"json"};
+            return new String[] {"json"};
         }
         if (type == GroovyFileType.GROOVY_FILE_TYPE) {
-            return new String[]{"groovy", "gradle"};
+            return new String[] {"groovy", "gradle"};
         }
         if (type == KotlinFileType.INSTANCE) {
-            return new String[]{"kt", "kts"};
+            return new String[] {"kt", "kts"};
         }
         if (type == PropertiesFileType.INSTANCE) {
-            return new String[]{"properties"};
+            return new String[] {"properties"};
         }
         if (type == YAMLFileType.YML) {
-            return new String[]{"yaml", "yml"};
+            return new String[] {"yaml", "yml"};
         }
         return new String[0];
     }
@@ -174,8 +165,6 @@ public class FileTypeManagerService extends FileTypeManager {
 
     private String getExtension(String fileName) {
         var lastDot = fileName.lastIndexOf('.');
-        return (lastDot >= 0 && lastDot < fileName.length() - 1)
-                ? fileName.substring(lastDot + 1)
-                : "";
+        return (lastDot >= 0 && lastDot < fileName.length() - 1) ? fileName.substring(lastDot + 1) : "";
     }
 }

@@ -19,7 +19,6 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect;
  * @see PomModelService
  */
 class MinimalPostprocessReformattingAspect extends PostprocessReformattingAspect {
-
     @Override
     public void disablePostprocessFormattingInside(Runnable runnable) {
         runnable.run();

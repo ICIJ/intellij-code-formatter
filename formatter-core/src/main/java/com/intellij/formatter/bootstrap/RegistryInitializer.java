@@ -1,10 +1,8 @@
 package com.intellij.formatter.bootstrap;
 
 import lombok.experimental.UtilityClass;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import static com.intellij.formatter.bootstrap.BootstrapLogger.debug;
 import static com.intellij.formatter.bootstrap.BootstrapLogger.skipped;
 
@@ -47,7 +45,6 @@ import static com.intellij.formatter.bootstrap.BootstrapLogger.skipped;
  */
 @UtilityClass
 public class RegistryInitializer {
-
     private static final String COMPONENT = "Registry";
 
     /**
@@ -75,28 +72,26 @@ public class RegistryInitializer {
 
             // RegistryKeyDescriptor(name, defaultValue, description, restartRequired, pluginId, overriddenValue)
             var descriptorClass = Class.forName("com.intellij.openapi.util.registry.RegistryKeyDescriptor");
-            var descriptorConstructor = descriptorClass.getConstructor(
-                    String.class, String.class, String.class, boolean.class, boolean.class, String.class);
+            var descriptorConstructor =
+                    descriptorClass.getConstructor(String.class, String.class, String.class, boolean.class,
+                                                   boolean.class, String.class);
 
             Map<String, Object> keys = new HashMap<>();
 
             // Java: Use modern method chain formatting (IDEA 2021.2+)
             keys.put("java.formatter.chained.calls.pre212.compatibility",
-                    descriptorConstructor.newInstance(
-                            "java.formatter.chained.calls.pre212.compatibility", "false",
-                            "Java formatter backward compatibility", false, false, null));
+                     descriptorConstructor.newInstance("java.formatter.chained.calls.pre212.compatibility", "false",
+                                                       "Java formatter backward compatibility", false, false, null));
 
             // Groovy: PSI-based formatting is more accurate than document-based
             keys.put("groovy.document.based.formatting",
-                    descriptorConstructor.newInstance(
-                            "groovy.document.based.formatting", "false",
-                            "Groovy document based formatting", false, false, null));
+                     descriptorConstructor.newInstance("groovy.document.based.formatting", "false",
+                                                       "Groovy document based formatting", false, false, null));
 
             // Kotlin: Don't auto-add trailing commas (matches default IDE behavior)
             keys.put("kotlin.formatter.allowTrailingCommaOnCallSite",
-                    descriptorConstructor.newInstance(
-                            "kotlin.formatter.allowTrailingCommaOnCallSite", "false",
-                            "Allow a trailing comma on call-site", false, false, null));
+                     descriptorConstructor.newInstance("kotlin.formatter.allowTrailingCommaOnCallSite", "false",
+                                                       "Allow a trailing comma on call-site", false, false, null));
 
             // Register keys and mark registry as loaded
             var setContributedKeysMethod = companionClass.getMethod("setContributedKeys", Map.class);

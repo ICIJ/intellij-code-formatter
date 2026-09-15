@@ -3,11 +3,9 @@ package com.intellij.formatter;
 import com.intellij.formatter.config.CodeStyleLoader;
 import com.intellij.formatter.core.DirectoryFormatter;
 import com.intellij.formatter.core.FormatReport;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
 
 /**
@@ -44,7 +42,6 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  * @see CodeStyleLoader
  */
 public final class JetbrainsFormatterApplication {
-
     private static final String VERSION = "2025.3.2";
     private static final int EXIT_SUCCESS = 0;
     private static final int EXIT_NOT_FORMATTED = 1;
@@ -90,8 +87,8 @@ public final class JetbrainsFormatterApplication {
                     }
                 }
                 case "--lines" -> {
-                    System.err.println("Error: --lines was removed; the CLI now formats/checks "
-                            + "whole directories. See CHANGELOG.md.");
+                    System.err.println("Error: --lines was removed; the CLI now formats/checks " +
+                                       "whole directories. See CHANGELOG.md.");
                     System.exit(EXIT_ERROR);
                 }
                 default -> {
@@ -102,8 +99,8 @@ public final class JetbrainsFormatterApplication {
                     } else if (directoryPath == null) {
                         directoryPath = args[i];
                     } else {
-                        System.err.println("Error: Multiple directories specified: "
-                                + directoryPath + " and " + args[i]);
+                        System.err.println(
+                                "Error: Multiple directories specified: " + directoryPath + " and " + args[i]);
                         printUsage();
                         System.exit(EXIT_ERROR);
                     }
@@ -152,8 +149,8 @@ public final class JetbrainsFormatterApplication {
     private static int printReportAndComputeExitCode(FormatReport report, boolean checkOnly) {
         if (checkOnly) {
             report.changed().forEach(System.out::println);
-            System.out.println(report.changed().size() + " of " + report.totalFiles()
-                    + " files are not formatted correctly");
+            System.out.println(
+                    report.changed().size() + " of " + report.totalFiles() + " files are not formatted correctly");
         } else {
             report.changed().forEach(path -> System.out.println("Formatted: " + path));
             System.out.println("Formatted " + report.changed().size() + " of " + report.totalFiles() + " files");
@@ -178,7 +175,8 @@ public final class JetbrainsFormatterApplication {
     private static void printHelp() {
         System.out.println("idea-format " + VERSION + " - IntelliJ IDEA Code Formatter");
         System.out.println();
-        System.out.println("Recursively formats .java files under a directory using IntelliJ IDEA's formatting engine.");
+        System.out.println(
+                "Recursively formats .java files under a directory using IntelliJ IDEA's formatting engine.");
         System.out.println();
         System.out.println("USAGE:");
         System.out.println("    idea-format [OPTIONS] <directory>");

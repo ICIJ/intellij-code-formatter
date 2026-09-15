@@ -4,7 +4,6 @@ import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @DisplayName("HTML Formatter Tests")
 class HtmlFormatterTest {
-
     @Test
     @DisplayName("Simple HTML document")
     void simpleHtmlDocument() throws FormattingException {
@@ -45,7 +43,8 @@ class HtmlFormatterTest {
     @Test
     @DisplayName("HTML form elements")
     void htmlFormElements() throws FormattingException {
-        var input = "<form action=\"/submit\" method=\"post\"><input type=\"text\" name=\"username\"><button type=\"submit\">Submit</button></form>";
+        var input =
+                "<form action=\"/submit\" method=\"post\"><input type=\"text\" name=\"username\"><button type=\"submit\">Submit</button></form>";
 
         var actual = StandaloneFormatter.formatCode(input, "form.html");
 
@@ -85,7 +84,8 @@ class HtmlFormatterTest {
     @Test
     @DisplayName("HTML5 semantic elements")
     void html5SemanticElements() throws FormattingException {
-        var input = "<article><header><h1>Title</h1></header><section><p>Content</p></section><footer>Footer</footer></article>";
+        var input =
+                "<article><header><h1>Title</h1></header><section><p>Content</p></section><footer>Footer</footer></article>";
 
         var actual = StandaloneFormatter.formatCode(input, "semantic.html");
 
@@ -135,7 +135,8 @@ class HtmlFormatterTest {
     @Test
     @DisplayName("HTML with inline styles and scripts")
     void htmlWithInlineStylesAndScripts() throws FormattingException {
-        var input = "<html><head><style>body{margin:0}</style></head><body><script>console.log('test')</script></body></html>";
+        var input =
+                "<html><head><style>body{margin:0}</style></head><body><script>console.log('test')</script></body></html>";
 
         var actual = StandaloneFormatter.formatCode(input, "inline.html");
 
@@ -157,7 +158,8 @@ class HtmlFormatterTest {
     @Test
     @DisplayName("XHTML document")
     void xhtmlDocument() throws FormattingException {
-        var input = "<?xml version=\"1.0\"?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Test</title></head><body><p>Hello</p></body></html>";
+        var input =
+                "<?xml version=\"1.0\"?><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Test</title></head><body><p>Hello</p></body></html>";
 
         var actual = StandaloneFormatter.formatCode(input, "test.xhtml");
 

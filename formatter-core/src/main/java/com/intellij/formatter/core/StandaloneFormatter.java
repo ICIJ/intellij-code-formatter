@@ -15,12 +15,9 @@ import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.testFramework.LightVirtualFile;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-
 import javax.swing.SwingUtilities;
 import java.lang.reflect.InvocationTargetException;
-
 import com.intellij.formatter.bootstrap.FormatterBootstrap;
-
 import static com.intellij.formatter.bootstrap.FormatterBootstrap.getProject;
 import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
@@ -71,7 +68,6 @@ import static com.intellij.openapi.application.ApplicationManager.getApplication
  */
 @UtilityClass
 public class StandaloneFormatter {
-
     private static final String COMPONENT = "Formatter";
 
     /**
@@ -108,8 +104,8 @@ public class StandaloneFormatter {
             var psiFile = createPsiFile(psiFileFactory, fileName, normalizedCode, fileType);
 
             if (psiFile == null) {
-                throw new FormattingException("Failed to create PsiFile for: " + fileName +
-                        ". The file type may not be supported.");
+                throw new FormattingException(
+                        "Failed to create PsiFile for: " + fileName + ". The file type may not be supported.");
             }
 
             // Format the PsiFile using CodeStyleManager
@@ -145,9 +141,7 @@ public class StandaloneFormatter {
      * @return the formatted source code
      * @throws FormattingException if formatting fails due to parsing errors or invalid line range
      */
-    public static String formatCodeRange(@NotNull String code,
-                                         @NotNull String fileName,
-                                         int startLine,
+    public static String formatCodeRange(@NotNull String code, @NotNull String fileName, int startLine,
                                          int endLine) throws FormattingException {
         initialize();
         var project = getProject();
@@ -222,12 +216,12 @@ public class StandaloneFormatter {
                 if (parserDef != null) {
                     try {
                         var virtualFile = new LightVirtualFile(fileName, language, code);
-                        var viewProvider = new SingleRootFileViewProvider(
-                                PsiManager.getInstance(getProject()), virtualFile, true);
+                        var viewProvider =
+                                new SingleRootFileViewProvider(PsiManager.getInstance(getProject()), virtualFile, true);
                         psiFile = parserDef.createFile(viewProvider);
                     } catch (Exception e) {
                         BootstrapLogger.skipped(COMPONENT, "ParserDefinition file creation",
-                                e.getClass().getSimpleName());
+                                                e.getClass().getSimpleName());
                     }
                 }
             }
@@ -252,18 +246,18 @@ public class StandaloneFormatter {
         final RuntimeException[] error = new RuntimeException[1];
 
         // Formatting must run in a write action within a command
-        Runnable formatTask = () -> CommandProcessor.getInstance().executeCommand(
-                project,
-                () -> getApplication().runWriteAction(() -> {
-                    try {
-                        result[0] = (PsiFile) codeStyleManager.reformat(psiFile);
-                    } catch (RuntimeException e) {
-                        error[0] = e;
-                    }
-                }),
-                "Format Code",
-                null
-        );
+        Runnable formatTask = () -> CommandProcessor.getInstance().executeCommand(project,
+                                                                                  () -> getApplication().runWriteAction(
+                                                                                          () -> {
+                                                                                              try {
+                                                                                                  result[0] =
+                                                                                                          (PsiFile) codeStyleManager.reformat(
+                                                                                                                  psiFile);
+                                                                                              } catch (
+                                                                                                      RuntimeException e) {
+                                                                                                  error[0] = e;
+                                                                                              }
+                                                                                          }), "Format Code", null);
 
         executeOnEdt(formatTask);
 
@@ -277,26 +271,28 @@ public class StandaloneFormatter {
     /**
      * Formats a range within the PsiFile using CodeStyleManager.
      */
-    private static PsiFile formatPsiFileRange(PsiFile psiFile, int startOffset, int endOffset)
-            throws InvocationTargetException, InterruptedException {
+    private static PsiFile formatPsiFileRange(PsiFile psiFile, int startOffset, int endOffset) throws
+            InvocationTargetException, InterruptedException {
         var project = getProject();
         var codeStyleManager = CodeStyleManager.getInstance(project);
 
         final PsiFile[] result = new PsiFile[1];
         final RuntimeException[] error = new RuntimeException[1];
 
-        Runnable formatTask = () -> CommandProcessor.getInstance().executeCommand(
-                project,
-                () -> getApplication().runWriteAction(() -> {
-                    try {
-                        result[0] = (PsiFile) codeStyleManager.reformatRange(psiFile, startOffset, endOffset);
-                    } catch (RuntimeException e) {
-                        error[0] = e;
-                    }
-                }),
-                "Format Range",
-                null
-        );
+        Runnable formatTask = () -> CommandProcessor.getInstance().executeCommand(project,
+                                                                                  () -> getApplication().runWriteAction(
+                                                                                          () -> {
+                                                                                              try {
+                                                                                                  result[0] =
+                                                                                                          (PsiFile) codeStyleManager.reformatRange(
+                                                                                                                  psiFile,
+                                                                                                                  startOffset,
+                                                                                                                  endOffset);
+                                                                                              } catch (
+                                                                                                      RuntimeException e) {
+                                                                                                  error[0] = e;
+                                                                                              }
+                                                                                          }), "Format Range", null);
 
         executeOnEdt(formatTask);
 
@@ -412,8 +408,7 @@ public class StandaloneFormatter {
      */
     private static String normalizeLineEndings(String text) {
         // Replace CRLF with LF first (order matters!)
-        return text.replace("\r\n", "\n")
-                .replace("\r", "\n");
+        return text.replace("\r\n", "\n").replace("\r", "\n");
     }
 
     /**

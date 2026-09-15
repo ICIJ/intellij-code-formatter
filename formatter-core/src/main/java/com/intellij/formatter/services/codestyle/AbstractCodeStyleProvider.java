@@ -9,7 +9,6 @@ import com.intellij.psi.codeStyle.LanguageCodeStyleProvider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Set;
 
 /**
@@ -46,15 +45,12 @@ import java.util.Set;
  */
 @RequiredArgsConstructor
 public abstract class AbstractCodeStyleProvider implements LanguageCodeStyleProvider {
-
     /** The language this provider handles. */
     @Getter
     @NotNull
     private final Language language;
-
     /** Indentation size in spaces. */
     private final int indentSize;
-
     /** Continuation indent size in spaces (for wrapped lines). */
     private final int continuationIndentSize;
 

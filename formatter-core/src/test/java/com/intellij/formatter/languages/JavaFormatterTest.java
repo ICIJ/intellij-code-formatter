@@ -4,7 +4,6 @@ import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -12,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @DisplayName("Java Formatter Tests")
 class JavaFormatterTest {
-
     @Test
     @DisplayName("Simple class with method")
     void simpleClassWithMethod() throws FormattingException {
@@ -63,7 +61,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Lambda expressions")
     void lambdaExpressions() throws FormattingException {
-        var input = "import java.util.function.*;public class Test{Runnable r=()->System.out.println(\"hello\");Function<String,Integer>f=s->s.length();}";
+        var input =
+                "import java.util.function.*;public class Test{Runnable r=()->System.out.println(\"hello\");Function<String,Integer>f=s->s.length();}";
         var expected = """
                 import java.util.function.*;
                 
@@ -79,7 +78,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Switch expressions")
     void switchExpressions() throws FormattingException {
-        var input = "public class Test{String get(int x){return switch(x){case 1->\"one\";case 2->\"two\";default->\"other\";};}}";
+        var input =
+                "public class Test{String get(int x){return switch(x){case 1->\"one\";case 2->\"two\";default->\"other\";};}}";
         var expected = """
                 public class Test {
                     String get(int x) {
@@ -110,7 +110,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Sealed class")
     void sealedClass() throws FormattingException {
-        var input = "public sealed class Shape permits Circle,Square{}final class Circle extends Shape{}final class Square extends Shape{}";
+        var input =
+                "public sealed class Shape permits Circle,Square{}final class Circle extends Shape{}final class Square extends Shape{}";
         var expected = """
                 public sealed class Shape permits Circle, Square {
                 }
@@ -128,7 +129,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Pattern matching instanceof")
     void patternMatchingInstanceof() throws FormattingException {
-        var input = "public class Test{void m(Object o){if(o instanceof String s&&s.length()>0){System.out.println(s);}}}";
+        var input =
+                "public class Test{void m(Object o){if(o instanceof String s&&s.length()>0){System.out.println(s);}}}";
         var expected = """
                 public class Test {
                     void m(Object o) {
@@ -145,7 +147,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Method references")
     void methodReferences() throws FormattingException {
-        var input = "import java.util.*;public class Test{void m(){var list=new ArrayList<String>();list.forEach(System.out::println);list.stream().map(String::toUpperCase).toList();}}";
+        var input =
+                "import java.util.*;public class Test{void m(){var list=new ArrayList<String>();list.forEach(System.out::println);list.stream().map(String::toUpperCase).toList();}}";
         var expected = """
                 import java.util.*;
                 
@@ -223,7 +226,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Try-catch-finally")
     void tryCatchFinally() throws FormattingException {
-        var input = "public class Test{void m(){try{throw new Exception();}catch(Exception e){e.printStackTrace();}finally{System.out.println(\"done\");}}}";
+        var input =
+                "public class Test{void m(){try{throw new Exception();}catch(Exception e){e.printStackTrace();}finally{System.out.println(\"done\");}}}";
         var expected = """
                 public class Test {
                     void m() {
@@ -261,7 +265,8 @@ class JavaFormatterTest {
     @Test
     @DisplayName("Enum with constructor")
     void enumWithConstructor() throws FormattingException {
-        var input = "public enum Status{ACTIVE(1),INACTIVE(0);private final int code;Status(int code){this.code=code;}}";
+        var input =
+                "public enum Status{ACTIVE(1),INACTIVE(0);private final int code;Status(int code){this.code=code;}}";
         var expected = """
                 public enum Status {
                     ACTIVE(1), INACTIVE(0);

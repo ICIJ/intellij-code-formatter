@@ -17,7 +17,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -33,10 +32,8 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class JavaPsiFacadeService extends JavaPsiFacade {
-
     @Getter
     private final Project project;
-
     @Getter
     private final PsiResolveHelper resolveHelper = new MinimalPsiResolveHelper();
 

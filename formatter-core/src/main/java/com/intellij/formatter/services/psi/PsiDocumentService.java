@@ -11,7 +11,6 @@ import com.intellij.psi.impl.BooleanRunnable;
 import com.intellij.psi.impl.PsiDocumentManagerBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
 
 /**
@@ -23,7 +22,6 @@ import java.util.List;
  * @see PsiDocumentManagerBase
  */
 public class PsiDocumentService extends PsiDocumentManagerBase {
-
     private final Project project;
 
     /**

@@ -1,7 +1,6 @@
 package com.intellij.formatter.core;
 
 import lombok.experimental.UtilityClass;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +13,6 @@ import java.util.LinkedHashMap;
  */
 @UtilityClass
 public class DirectoryFormatter {
-
     /**
      * Reformats every {@code .java} file found under {@code directory} in place,
      * writing back only files whose content actually changed.

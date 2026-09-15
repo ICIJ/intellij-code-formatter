@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.function.Predicate;
 
 /**
@@ -23,9 +22,7 @@ import java.util.function.Predicate;
  * @see FileDocumentManager
  */
 public class DocumentManagerService extends FileDocumentManager {
-
     private static final String COMPONENT = "DocumentManager";
-
     private static final Key<Document> DOC_KEY = Key.create("DocumentManagerService.DOC");
     private static final Key<VirtualFile> FILE_KEY = Key.create("DocumentManagerService.FILE");
 

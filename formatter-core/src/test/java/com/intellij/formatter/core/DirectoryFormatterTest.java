@@ -3,17 +3,14 @@ package com.intellij.formatter.core;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("DirectoryFormatter Tests")
 class DirectoryFormatterTest {
-
     // Structurally identical to JavaFormatterTest's verified "simple class with method"
     // fixture (renamed), so this is a known-idempotent formatted shape.
     private static final String CLEAN_CONTENT = """
@@ -91,7 +88,7 @@ class DirectoryFormatterTest {
     @DisplayName("format() records I/O failures without aborting the run")
     void formatRecordsIoFailuresAndContinues(@TempDir Path tempDir) throws IOException {
         var badFile = tempDir.resolve("Bad.java");
-        Files.write(badFile, new byte[]{(byte) 0xFF, (byte) 0xFE});
+        Files.write(badFile, new byte[] {(byte) 0xFF, (byte) 0xFE});
 
         var goodFile = tempDir.resolve("Zzz.java");
         Files.writeString(goodFile, "public class Zzz{void go(){int x=1;}}");

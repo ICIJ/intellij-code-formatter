@@ -18,10 +18,8 @@ import lombok.Getter;
  * @see MinimalPostprocessReformattingAspect
  */
 public class PomModelService extends PomModelImpl {
-
     @Getter
     private final PostprocessReformattingAspect reformattingAspect = new MinimalPostprocessReformattingAspect();
-
     @Getter
     private final TreeAspect treeAspect = new TreeAspect();
 

@@ -70,12 +70,10 @@ import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
 import com.intellij.util.CachedValuesManagerImpl;
 import lombok.experimental.UtilityClass;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.List;
-
 import static com.intellij.formatter.bootstrap.BootstrapLogger.debug;
 import static com.intellij.formatter.bootstrap.BootstrapLogger.skipped;
 import static com.intellij.formatter.bootstrap.BootstrapLogger.warn;
@@ -122,7 +120,6 @@ import static com.intellij.formatter.bootstrap.BootstrapLogger.warn;
  */
 @UtilityClass
 public class ServicesRegistrar {
-
     private static final String COMPONENT = "Services";
 
     /**
@@ -245,14 +242,13 @@ public class ServicesRegistrar {
      */
     private static void tryRegisterPsiSyntaxBuilderFactory(HeadlessMockApplication application) {
         tryRegisterService(application, "com.intellij.platform.syntax.psi.PsiSyntaxBuilderFactory",
-                "com.intellij.platform.syntax.psi.PsiSyntaxBuilderFactoryImpl",
-                "IDEA 2025.x syntax builder support");
+                           "com.intellij.platform.syntax.psi.PsiSyntaxBuilderFactoryImpl",
+                           "IDEA 2025.x syntax builder support");
     }
 
     private static void tryRegisterTransferredWriteActionService(HeadlessMockApplication application) {
         tryRegisterService(application, "com.intellij.util.concurrency.TransferredWriteActionService",
-                SimpleTransferredWriteActionService.class,
-                "Write action transfer support");
+                           SimpleTransferredWriteActionService.class, "Write action transfer support");
     }
 
     /**
@@ -263,21 +259,17 @@ public class ServicesRegistrar {
      */
     private static void tryRegisterReadActionCache(HeadlessMockApplication application) {
         tryRegisterService(application, "com.intellij.psi.util.ReadActionCache",
-                "com.intellij.openapi.application.impl.ReadActionCacheImpl",
-                "Read action cache");
+                           "com.intellij.openapi.application.impl.ReadActionCacheImpl", "Read action cache");
     }
 
     private static void tryRegisterPluginProblemReporter(HeadlessMockApplication application) {
         tryRegisterService(application, "com.intellij.diagnostic.PluginProblemReporter",
-                "com.intellij.diagnostic.PluginProblemReporterImpl",
-                "Plugin problem reporter");
+                           "com.intellij.diagnostic.PluginProblemReporterImpl", "Plugin problem reporter");
     }
 
     @SuppressWarnings("unchecked")
-    private static void tryRegisterService(HeadlessMockApplication application,
-                                           String serviceClassName,
-                                           String implClassName,
-                                           String description) {
+    private static void tryRegisterService(HeadlessMockApplication application, String serviceClassName,
+                                           String implClassName, String description) {
         try {
             var serviceClass = (Class<Object>) Class.forName(serviceClassName);
             var implClass = Class.forName(implClassName);
@@ -294,10 +286,8 @@ public class ServicesRegistrar {
     }
 
     @SuppressWarnings("unchecked")
-    private static void tryRegisterService(HeadlessMockApplication application,
-                                           String serviceClassName,
-                                           Class<?> implClass,
-                                           String description) {
+    private static void tryRegisterService(HeadlessMockApplication application, String serviceClassName,
+                                           Class<?> implClass, String description) {
         try {
             var serviceClass = (Class<Object>) Class.forName(serviceClassName);
             application.registerService(serviceClass, implClass.getDeclaredConstructor().newInstance());
@@ -344,7 +334,8 @@ public class ServicesRegistrar {
     @SuppressWarnings("unchecked")
     private static void registerCodeInsightContextManager(MockProject project) {
         try {
-            var serviceClass = (Class<Object>) Class.forName("com.intellij.codeInsight.multiverse.CodeInsightContextManager");
+            var serviceClass =
+                    (Class<Object>) Class.forName("com.intellij.codeInsight.multiverse.CodeInsightContextManager");
 
             // Create a dynamic proxy that returns sensible defaults for all methods
             InvocationHandler handler = (proxyObj, method, args) -> {
@@ -364,7 +355,7 @@ public class ServicesRegistrar {
                 return null;
             };
 
-            var proxy = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[]{serviceClass}, handler);
+            var proxy = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] {serviceClass}, handler);
             project.registerService(serviceClass, proxy);
             debug(COMPONENT, "Registered CodeInsightContextManager proxy");
         } catch (ClassNotFoundException e) {

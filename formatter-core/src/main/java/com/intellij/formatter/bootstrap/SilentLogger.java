@@ -17,7 +17,6 @@ import org.apache.log4j.Level;
  * @see Logger
  */
 final class SilentLogger extends Logger {
-
     @Override
     public boolean isDebugEnabled() {
         return false;

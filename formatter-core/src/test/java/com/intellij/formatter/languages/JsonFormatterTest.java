@@ -4,7 +4,6 @@ import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @DisplayName("JSON Formatter Tests")
 class JsonFormatterTest {
-
     @Test
     @DisplayName("Simple object - content preserved")
     void simpleObject() throws FormattingException {

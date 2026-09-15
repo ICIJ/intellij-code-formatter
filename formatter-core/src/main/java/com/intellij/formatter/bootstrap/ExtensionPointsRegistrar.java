@@ -4,7 +4,6 @@ import com.intellij.mock.MockProject;
 import com.intellij.openapi.extensions.ExtensionPoint;
 import com.intellij.openapi.extensions.impl.ExtensionsAreaImpl;
 import lombok.experimental.UtilityClass;
-
 import static com.intellij.formatter.bootstrap.BootstrapLogger.debug;
 import static com.intellij.formatter.bootstrap.BootstrapLogger.skipped;
 
@@ -34,7 +33,6 @@ import static com.intellij.formatter.bootstrap.BootstrapLogger.skipped;
  */
 @UtilityClass
 public class ExtensionPointsRegistrar {
-
     private static final String COMPONENT = "ExtensionPoints";
 
     /**
@@ -50,57 +48,49 @@ public class ExtensionPointsRegistrar {
 
         // Code style extension points - required for formatting settings management
         registerSafe(area, "com.intellij.fileIndentOptionsProvider",
-                "com.intellij.psi.codeStyle.FileIndentOptionsProvider");
+                     "com.intellij.psi.codeStyle.FileIndentOptionsProvider");
         registerSafe(area, "com.intellij.langCodeStyleSettingsProvider",
-                "com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider");
+                     "com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider");
         registerSafe(area, "com.intellij.codeStyleSettingsProvider",
-                "com.intellij.psi.codeStyle.CodeStyleSettingsProvider");
+                     "com.intellij.psi.codeStyle.CodeStyleSettingsProvider");
 
         // Formatting pipeline extension points
-        registerSafe(area, "com.intellij.lang.formatter",
-                "com.intellij.formatting.FormattingModelBuilder");
-        registerSafe(area, "com.intellij.formattingService",
-                "com.intellij.formatting.service.FormattingService");
+        registerSafe(area, "com.intellij.lang.formatter", "com.intellij.formatting.FormattingModelBuilder");
+        registerSafe(area, "com.intellij.formattingService", "com.intellij.formatting.service.FormattingService");
         registerSafe(area, "com.intellij.lang.formatter.restriction",
-                "com.intellij.lang.LanguageFormattingRestriction");
+                     "com.intellij.lang.LanguageFormattingRestriction");
 
         // Pre/post processors - modify code before/after main formatting pass
         registerSafe(area, "com.intellij.externalFormatProcessor",
-                "com.intellij.psi.codeStyle.ExternalFormatProcessor");
+                     "com.intellij.psi.codeStyle.ExternalFormatProcessor");
         registerSafe(area, "com.intellij.postFormatProcessor",
-                "com.intellij.psi.impl.source.codeStyle.PostFormatProcessor");
+                     "com.intellij.psi.impl.source.codeStyle.PostFormatProcessor");
         registerSafe(area, "com.intellij.preFormatProcessor",
-                "com.intellij.psi.impl.source.codeStyle.PreFormatProcessor");
+                     "com.intellij.psi.impl.source.codeStyle.PreFormatProcessor");
 
         // PSI infrastructure extension points
-        registerSafe(area, "com.intellij.lang.parserDefinition",
-                "com.intellij.lang.ParserDefinition");
-        registerSafe(area, "com.intellij.fileType",
-                "com.intellij.openapi.fileTypes.FileType");
-        registerSafe(area, "com.intellij.lang.psiAugmentProvider",
-                "com.intellij.psi.augment.PsiAugmentProvider");
+        registerSafe(area, "com.intellij.lang.parserDefinition", "com.intellij.lang.ParserDefinition");
+        registerSafe(area, "com.intellij.fileType", "com.intellij.openapi.fileTypes.FileType");
+        registerSafe(area, "com.intellij.lang.psiAugmentProvider", "com.intellij.psi.augment.PsiAugmentProvider");
         registerSafe(area, "com.intellij.psi.treeChangePreprocessor",
-                "com.intellij.psi.impl.PsiTreeChangePreprocessor");
+                     "com.intellij.psi.impl.PsiTreeChangePreprocessor");
 
         // Document and smart pointer extension points
         registerSafe(area, "com.intellij.documentWriteAccessGuard",
-                "com.intellij.openapi.editor.impl.DocumentWriteAccessGuard");
+                     "com.intellij.openapi.editor.impl.DocumentWriteAccessGuard");
         registerSafe(area, "com.intellij.smartPointer.anchorProvider",
-                "com.intellij.psi.impl.smartPointers.SmartPointerAnchorProvider");
+                     "com.intellij.psi.impl.smartPointers.SmartPointerAnchorProvider");
 
         // Groovy-specific: inline AST transformations for proper Groovy formatting
         registerSafe(area, "org.intellij.groovy.inlineASTTransformationSupport",
-                "org.jetbrains.plugins.groovy.transformations.inline.GroovyInlineASTTransformationSupport");
+                     "org.jetbrains.plugins.groovy.transformations.inline.GroovyInlineASTTransformationSupport");
 
         // IDEA 2025.x multiverse support (for multi-context code insight)
-        registerSafe(area, "com.intellij.multiverseEnabler",
-                "com.intellij.codeInsight.multiverse.MultiverseEnabler");
+        registerSafe(area, "com.intellij.multiverseEnabler", "com.intellij.codeInsight.multiverse.MultiverseEnabler");
 
         // Meta language and injection support
-        registerSafe(area, "com.intellij.metaLanguage",
-                "com.intellij.lang.MetaLanguage");
-        registerSafe(area, "com.intellij.languageInjector",
-                "com.intellij.psi.LanguageInjector");
+        registerSafe(area, "com.intellij.metaLanguage", "com.intellij.lang.MetaLanguage");
+        registerSafe(area, "com.intellij.languageInjector", "com.intellij.psi.LanguageInjector");
 
         debug(COMPONENT, "Application extension points registered");
     }
@@ -121,13 +111,11 @@ public class ExtensionPointsRegistrar {
 
         // PSI tree change listeners - notified when PSI structure changes during formatting
         registerSafe(projectArea, "com.intellij.psi.treeChangePreprocessor",
-                "com.intellij.psi.impl.PsiTreeChangePreprocessor");
-        registerSafe(projectArea, "com.intellij.psi.treeChangeListener",
-                "com.intellij.psi.PsiTreeChangeListener");
+                     "com.intellij.psi.impl.PsiTreeChangePreprocessor");
+        registerSafe(projectArea, "com.intellij.psi.treeChangeListener", "com.intellij.psi.PsiTreeChangeListener");
 
         // Multi-host injection - for languages embedded in other languages (e.g., SQL in Java strings)
-        registerSafe(projectArea, "com.intellij.multiHostInjector",
-                "com.intellij.lang.injection.MultiHostInjector");
+        registerSafe(projectArea, "com.intellij.multiHostInjector", "com.intellij.lang.injection.MultiHostInjector");
 
         debug(COMPONENT, "Project extension points registered");
     }

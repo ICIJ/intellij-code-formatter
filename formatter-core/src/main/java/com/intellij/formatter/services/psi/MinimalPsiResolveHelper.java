@@ -35,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
  * @see JavaPsiFacadeService
  */
 class MinimalPsiResolveHelper implements PsiResolveHelper {
-
     @Override
     public @NotNull JavaResolveResult resolveConstructor(@NotNull PsiClassType type,
                                                          @NotNull PsiExpressionList argumentList,
@@ -79,22 +78,20 @@ class MinimalPsiResolveHelper implements PsiResolveHelper {
     }
 
     @Override
-    public @Nullable PsiVariable resolveAccessibleReferencedVariable(@NotNull String referenceText, @NotNull PsiElement context) {
+    public @Nullable PsiVariable resolveAccessibleReferencedVariable(@NotNull String referenceText,
+                                                                     @NotNull PsiElement context) {
         return null;
     }
 
     @Override
-    public boolean isAccessible(@NotNull PsiMember member,
-                                @NotNull PsiElement place,
+    public boolean isAccessible(@NotNull PsiMember member, @NotNull PsiElement place,
                                 @Nullable PsiClass accessObjectClass) {
         return true;
     }
 
     @Override
-    public boolean isAccessible(@NotNull PsiMember member,
-                                @Nullable PsiModifierList modifierList,
-                                @NotNull PsiElement place,
-                                @Nullable PsiClass accessObjectClass,
+    public boolean isAccessible(@NotNull PsiMember member, @Nullable PsiModifierList modifierList,
+                                @NotNull PsiElement place, @Nullable PsiClass accessObjectClass,
                                 @Nullable PsiElement currentFileResolveScope) {
         return true;
     }
@@ -128,8 +125,7 @@ class MinimalPsiResolveHelper implements PsiResolveHelper {
     public @NotNull PsiSubstitutor inferTypeArguments(PsiTypeParameter @NotNull [] typeParameters,
                                                       PsiParameter @NotNull [] parameters,
                                                       PsiExpression @NotNull [] arguments,
-                                                      @NotNull MethodCandidateInfo info,
-                                                      @NotNull PsiElement parent,
+                                                      @NotNull MethodCandidateInfo info, @NotNull PsiElement parent,
                                                       @NotNull ParameterTypeInferencePolicy policy,
                                                       @NotNull LanguageLevel languageLevel) {
         return info.getSubstitutor();
@@ -137,16 +133,13 @@ class MinimalPsiResolveHelper implements PsiResolveHelper {
 
     @Override
     public @NotNull PsiSubstitutor inferTypeArguments(PsiTypeParameter @NotNull [] typeParameters,
-                                                      PsiType @NotNull [] leftTypes,
-                                                      PsiType @NotNull [] rightTypes,
+                                                      PsiType @NotNull [] leftTypes, PsiType @NotNull [] rightTypes,
                                                       @NotNull LanguageLevel languageLevel) {
         return PsiSubstitutor.EMPTY;
     }
 
     @Override
-    public @Nullable PsiType getSubstitutionForTypeParameter(PsiTypeParameter typeParam,
-                                                             PsiType param,
-                                                             PsiType arg,
+    public @Nullable PsiType getSubstitutionForTypeParameter(PsiTypeParameter typeParam, PsiType param, PsiType arg,
                                                              boolean isContraVariantPosition,
                                                              @NotNull LanguageLevel languageLevel) {
         return null;

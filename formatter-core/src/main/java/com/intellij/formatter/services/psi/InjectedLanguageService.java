@@ -13,7 +13,6 @@ import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.lang.injection.InjectedLanguageManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
 
 /**
@@ -25,7 +24,6 @@ import java.util.List;
  * @see InjectedLanguageManager
  */
 public class InjectedLanguageService extends InjectedLanguageManager {
-
     @Override
     public PsiLanguageInjectionHost getInjectionHost(@NotNull FileViewProvider injectedProvider) {
         return null;
@@ -37,7 +35,8 @@ public class InjectedLanguageService extends InjectedLanguageManager {
     }
 
     @Override
-    public @NotNull TextRange injectedToHost(@NotNull PsiElement injectedContext, @NotNull TextRange injectedTextRange) {
+    public @NotNull TextRange injectedToHost(@NotNull PsiElement injectedContext,
+                                             @NotNull TextRange injectedTextRange) {
         return injectedTextRange;
     }
 
@@ -101,9 +100,7 @@ public class InjectedLanguageService extends InjectedLanguageManager {
     }
 
     @Override
-    public void enumerateEx(@NotNull PsiElement host,
-                            @NotNull PsiFile containingFile,
-                            boolean probeUp,
+    public void enumerateEx(@NotNull PsiElement host, @NotNull PsiFile containingFile, boolean probeUp,
                             @NotNull PsiLanguageInjectionHost.InjectedPsiVisitor visitor) {
     }
 

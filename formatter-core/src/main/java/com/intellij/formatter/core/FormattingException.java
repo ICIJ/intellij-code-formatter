@@ -24,7 +24,6 @@ package com.intellij.formatter.core;
  * @see StandaloneFormatter
  */
 public class FormattingException extends Exception {
-
     /**
      * Constructs a new formatting exception with the specified detail message.
      *

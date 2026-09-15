@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +21,9 @@ import java.util.List;
  * @see CodeStyleScheme
  */
 public class CodeStyleSchemesService extends CodeStyleSchemes {
-
     private final List<CodeStyleScheme> schemes = new ArrayList<>();
-
     @Getter
     private final CodeStyleScheme defaultScheme;
-
     @Getter
     @Setter
     private CodeStyleScheme currentScheme;
@@ -52,10 +48,7 @@ public class CodeStyleSchemesService extends CodeStyleSchemes {
 
     @Override
     public @Nullable CodeStyleScheme findSchemeByName(@NotNull String name) {
-        return schemes.stream()
-                .filter(scheme -> name.equals(scheme.getName()))
-                .findFirst()
-                .orElse(null);
+        return schemes.stream().filter(scheme -> name.equals(scheme.getName())).findFirst().orElse(null);
     }
 
     @Override

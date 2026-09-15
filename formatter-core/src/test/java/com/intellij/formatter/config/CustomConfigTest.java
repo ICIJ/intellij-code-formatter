@@ -6,11 +6,9 @@ import org.jdom.JDOMException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -48,8 +46,7 @@ class CustomConfigTest {
     @Test
     @DisplayName("Load nonexistent file throws exception")
     void loadNonexistentFile() {
-        var exception = assertThrows(IOException.class,
-                () -> new CodeStyleLoader("/nonexistent/path/config.xml"));
+        var exception = assertThrows(IOException.class, () -> new CodeStyleLoader("/nonexistent/path/config.xml"));
 
         assertTrue(exception.getMessage().contains("not found"));
     }

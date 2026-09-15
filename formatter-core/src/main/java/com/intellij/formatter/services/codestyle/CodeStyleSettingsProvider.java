@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.idea.core.formatter.KotlinCodeStyleSettings;
 import org.jetbrains.plugins.groovy.codeStyle.GroovyCodeStyleSettings;
 import org.jetbrains.yaml.formatter.YAMLCodeStyleSettings;
-
 import java.util.List;
 
 /**
@@ -28,23 +27,13 @@ import java.util.List;
  * @see LanguageCodeStyleProvider
  */
 public class CodeStyleSettingsProvider implements CodeStyleSettingsService {
-
-    private final List<LanguageCodeStyleProvider> languageProviders = List.of(
-            new MinimalJavaCodeStyleProvider(),
-            new MinimalGroovyCodeStyleProvider(),
-            new MinimalPropertiesCodeStyleProvider(),
-            new MinimalKotlinCodeStyleProvider()
-    );
-
-    private final List<CustomCodeStyleSettingsFactory> customFactories = List.of(
-            JavaCodeStyleSettings::new,
-            JsonCodeStyleSettings::new,
-            XmlCodeStyleSettings::new,
-            GroovyCodeStyleSettings::new,
-            PropertiesCodeStyleSettings::new,
-            YAMLCodeStyleSettings::new,
-            KotlinCodeStyleSettings::new
-    );
+    private final List<LanguageCodeStyleProvider> languageProviders =
+            List.of(new MinimalJavaCodeStyleProvider(), new MinimalGroovyCodeStyleProvider(),
+                    new MinimalPropertiesCodeStyleProvider(), new MinimalKotlinCodeStyleProvider());
+    private final List<CustomCodeStyleSettingsFactory> customFactories =
+            List.of(JavaCodeStyleSettings::new, JsonCodeStyleSettings::new, XmlCodeStyleSettings::new,
+                    GroovyCodeStyleSettings::new, PropertiesCodeStyleSettings::new, YAMLCodeStyleSettings::new,
+                    KotlinCodeStyleSettings::new);
 
     @Override
     public @NotNull List<CustomCodeStyleSettingsFactory> getCustomCodeStyleSettingsFactories() {
@@ -52,8 +41,7 @@ public class CodeStyleSettingsProvider implements CodeStyleSettingsService {
     }
 
     @Override
-    public void addListener(@NotNull CodeStyleSettingsServiceListener listener,
-                            @Nullable Disposable disposable) {
+    public void addListener(@NotNull CodeStyleSettingsServiceListener listener, @Nullable Disposable disposable) {
     }
 
     @Override

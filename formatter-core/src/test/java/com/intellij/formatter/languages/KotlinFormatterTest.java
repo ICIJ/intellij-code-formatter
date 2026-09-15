@@ -4,7 +4,6 @@ import com.intellij.formatter.core.FormattingException;
 import com.intellij.formatter.core.StandaloneFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -12,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @DisplayName("Kotlin Formatter Tests")
 class KotlinFormatterTest {
-
     @Test
     @DisplayName("Simple class with properties")
     void simpleClassWithProperties() throws FormattingException {
@@ -86,7 +84,8 @@ class KotlinFormatterTest {
     @Test
     @DisplayName("Sealed class")
     void sealedClass() throws FormattingException {
-        var input = "sealed class Result<out T>\ndata class Success<T>(val data:T):Result<T>()\ndata class Error(val message:String):Result<Nothing>()";
+        var input =
+                "sealed class Result<out T>\ndata class Success<T>(val data:T):Result<T>()\ndata class Error(val message:String):Result<Nothing>()";
         var expected = """
                 sealed class Result<out T>
                 data class Success<T>(val data: T) : Result<T>()
@@ -260,7 +259,8 @@ class KotlinFormatterTest {
     @Test
     @DisplayName("Operator overloading")
     void operatorOverloading() throws FormattingException {
-        var input = "data class Vector(val x:Int,val y:Int){operator fun plus(other:Vector)=Vector(x+other.x,y+other.y)}";
+        var input =
+                "data class Vector(val x:Int,val y:Int){operator fun plus(other:Vector)=Vector(x+other.x,y+other.y)}";
         var expected = """
                 data class Vector(val x: Int, val y: Int) {
                     operator fun plus(other: Vector) = Vector(x + other.x, y + other.y)

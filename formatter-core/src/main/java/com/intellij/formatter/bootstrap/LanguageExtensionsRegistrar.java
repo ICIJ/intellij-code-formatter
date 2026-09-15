@@ -39,13 +39,11 @@ import org.jetbrains.plugins.groovy.lang.parser.GroovyParserDefinition;
 import org.jetbrains.yaml.YAMLLanguage;
 import org.jetbrains.yaml.YAMLParserDefinition;
 import org.jetbrains.yaml.formatter.YAMLFormattingModelBuilder;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import static com.intellij.formatter.bootstrap.BootstrapLogger.debug;
 import static com.intellij.formatter.bootstrap.BootstrapLogger.skipped;
 import static com.intellij.formatter.bootstrap.BootstrapLogger.warn;
@@ -56,12 +54,9 @@ import static com.intellij.formatter.bootstrap.BootstrapLogger.warn;
  */
 @UtilityClass
 public class LanguageExtensionsRegistrar {
-
     private static final String COMPONENT = "Languages";
-
     /** Set of already registered language IDs for lazy loading */
     private static final Set<String> registeredLanguages = new HashSet<>();
-
     /** Flag indicating if core formatting service is registered */
     private static boolean formattingServiceRegistered = false;
 
@@ -70,13 +65,8 @@ public class LanguageExtensionsRegistrar {
      * Some languages depend on others (e.g., HTML depends on XML).
      */
     public enum LanguageGroup {
-        JAVA,
-        KOTLIN,
-        GROOVY,
-        XML,      // Also registers HTML/XHTML
-        JSON,
-        YAML,
-        PROPERTIES
+        JAVA, KOTLIN, GROOVY, XML,      // Also registers HTML/XHTML
+        JSON, YAML, PROPERTIES
     }
 
     /**
@@ -88,8 +78,7 @@ public class LanguageExtensionsRegistrar {
      * @param rootDisposable the root disposable
      * @return true if a language was registered, false if already registered or unsupported
      */
-    public static synchronized boolean registerLanguageForFile(String fileName,
-                                                               ExtensionsAreaImpl extensionArea,
+    public static synchronized boolean registerLanguageForFile(String fileName, ExtensionsAreaImpl extensionArea,
                                                                Disposable rootDisposable) {
         var group = getLanguageGroupForFile(fileName);
         if (group == null) {
@@ -103,8 +92,7 @@ public class LanguageExtensionsRegistrar {
     /**
      * Registers a specific language group with its dependencies.
      */
-    public static synchronized boolean registerLanguageGroup(LanguageGroup group,
-                                                             ExtensionsAreaImpl extensionArea,
+    public static synchronized boolean registerLanguageGroup(LanguageGroup group, ExtensionsAreaImpl extensionArea,
                                                              Disposable rootDisposable) {
         // Always ensure formatting service is registered first
         if (!formattingServiceRegistered) {
@@ -151,7 +139,8 @@ public class LanguageExtensionsRegistrar {
      * @return the language group, or null if unsupported
      */
     public static LanguageGroup getLanguageGroupForFile(String fileName) {
-        if (fileName == null) return null;
+        if (fileName == null)
+            return null;
 
         String lowerName = fileName.toLowerCase();
 
@@ -162,7 +151,8 @@ public class LanguageExtensionsRegistrar {
 
         // Extract extension
         int dotIndex = lowerName.lastIndexOf('.');
-        if (dotIndex < 0) return null;
+        if (dotIndex < 0)
+            return null;
 
         String ext = lowerName.substring(dotIndex + 1);
 
@@ -190,7 +180,8 @@ public class LanguageExtensionsRegistrar {
      * Registers CoreFormattingService as the default formatting implementation.
      */
     private static void registerFormattingService(ExtensionsAreaImpl extensionArea, Disposable rootDisposable) {
-        if (formattingServiceRegistered) return;
+        if (formattingServiceRegistered)
+            return;
 
         try {
             ExtensionPoint<FormattingService> ep = extensionArea.getExtensionPoint("com.intellij.formattingService");
@@ -207,16 +198,17 @@ public class LanguageExtensionsRegistrar {
      */
     @SuppressWarnings("deprecation")
     private static void registerJava() {
-        if (registeredLanguages.contains("JAVA_INTERNAL")) return;
+        if (registeredLanguages.contains("JAVA_INTERNAL"))
+            return;
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(JavaLanguage.INSTANCE, new JavaParserDefinition());
         LanguageASTFactory.INSTANCE.addExplicitExtension(JavaLanguage.INSTANCE, new JavaASTFactory());
         LanguageFormatting.INSTANCE.addExplicitExtension(JavaLanguage.INSTANCE, new JavaFormattingModelBuilder());
 
         tryRegisterSyntaxDefinition(JavaLanguage.INSTANCE,
-                "com.intellij.java.frontback.psi.impl.syntax.JavaSyntaxDefinitionExtension");
+                                    "com.intellij.java.frontback.psi.impl.syntax.JavaSyntaxDefinitionExtension");
         tryRegisterElementTypeConverter(JavaLanguage.INSTANCE,
-                "com.intellij.lang.java.syntax.JavaElementTypeConverterExtension");
+                                        "com.intellij.lang.java.syntax.JavaElementTypeConverterExtension");
 
         registeredLanguages.add("JAVA_INTERNAL");
         debug(COMPONENT, "Registered Java");
@@ -226,16 +218,15 @@ public class LanguageExtensionsRegistrar {
      * Registers XML language support.
      */
     private static void registerXml() {
-        if (registeredLanguages.contains("XML_INTERNAL")) return;
+        if (registeredLanguages.contains("XML_INTERNAL"))
+            return;
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(XMLLanguage.INSTANCE, new XMLParserDefinition());
         LanguageASTFactory.INSTANCE.addExplicitExtension(XMLLanguage.INSTANCE, new XmlASTFactory());
         LanguageFormatting.INSTANCE.addExplicitExtension(XMLLanguage.INSTANCE, new XmlFormattingModelBuilder());
 
-        tryRegisterSyntaxDefinition(XMLLanguage.INSTANCE,
-                "com.intellij.lang.xml.XmlSyntaxDefinitionExtension");
-        tryRegisterElementTypeConverter(XMLLanguage.INSTANCE,
-                "com.intellij.psi.xml.XmlElementTypeConverterExtension");
+        tryRegisterSyntaxDefinition(XMLLanguage.INSTANCE, "com.intellij.lang.xml.XmlSyntaxDefinitionExtension");
+        tryRegisterElementTypeConverter(XMLLanguage.INSTANCE, "com.intellij.psi.xml.XmlElementTypeConverterExtension");
 
         registeredLanguages.add("XML_INTERNAL");
         debug(COMPONENT, "Registered XML");
@@ -245,7 +236,8 @@ public class LanguageExtensionsRegistrar {
      * Registers HTML and XHTML language support.
      */
     private static void registerHtml() {
-        if (registeredLanguages.contains("HTML_INTERNAL")) return;
+        if (registeredLanguages.contains("HTML_INTERNAL"))
+            return;
 
         // HTML depends on XML
         registerXml();
@@ -264,7 +256,8 @@ public class LanguageExtensionsRegistrar {
      * Registers JSON language support.
      */
     private static void registerJson() {
-        if (registeredLanguages.contains("JSON_INTERNAL")) return;
+        if (registeredLanguages.contains("JSON_INTERNAL"))
+            return;
 
         var jsonLanguage = JsonLanguage.INSTANCE;
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(jsonLanguage, new JsonParserDefinition());
@@ -282,7 +275,8 @@ public class LanguageExtensionsRegistrar {
      * Registers Groovy language support.
      */
     private static void registerGroovy() {
-        if (registeredLanguages.contains("GROOVY_INTERNAL")) return;
+        if (registeredLanguages.contains("GROOVY_INTERNAL"))
+            return;
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(GroovyLanguage.INSTANCE, new GroovyParserDefinition());
         LanguageFormatting.INSTANCE.addExplicitExtension(GroovyLanguage.INSTANCE, new GroovyFormattingModelBuilder());
@@ -295,10 +289,13 @@ public class LanguageExtensionsRegistrar {
      * Registers Properties file language support.
      */
     private static void registerProperties() {
-        if (registeredLanguages.contains("PROPERTIES_INTERNAL")) return;
+        if (registeredLanguages.contains("PROPERTIES_INTERNAL"))
+            return;
 
-        LanguageParserDefinitions.INSTANCE.addExplicitExtension(PropertiesLanguage.INSTANCE, new PropertiesParserDefinition());
-        LanguageFormatting.INSTANCE.addExplicitExtension(PropertiesLanguage.INSTANCE, new PropertiesFormattingModelBuilder());
+        LanguageParserDefinitions.INSTANCE.addExplicitExtension(PropertiesLanguage.INSTANCE,
+                                                                new PropertiesParserDefinition());
+        LanguageFormatting.INSTANCE.addExplicitExtension(PropertiesLanguage.INSTANCE,
+                                                         new PropertiesFormattingModelBuilder());
 
         registeredLanguages.add("PROPERTIES_INTERNAL");
         debug(COMPONENT, "Registered Properties");
@@ -308,7 +305,8 @@ public class LanguageExtensionsRegistrar {
      * Registers YAML language support.
      */
     private static void registerYaml() {
-        if (registeredLanguages.contains("YAML_INTERNAL")) return;
+        if (registeredLanguages.contains("YAML_INTERNAL"))
+            return;
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(YAMLLanguage.INSTANCE, new YAMLParserDefinition());
         LanguageFormatting.INSTANCE.addExplicitExtension(YAMLLanguage.INSTANCE, new YAMLFormattingModelBuilder());
@@ -321,7 +319,8 @@ public class LanguageExtensionsRegistrar {
      * Registers Kotlin language support.
      */
     private static void registerKotlin(ExtensionsAreaImpl extensionArea, Disposable rootDisposable) {
-        if (registeredLanguages.contains("KOTLIN_INTERNAL")) return;
+        if (registeredLanguages.contains("KOTLIN_INTERNAL"))
+            return;
 
         LanguageParserDefinitions.INSTANCE.addExplicitExtension(KotlinLanguage.INSTANCE, new KotlinParserDefinition());
         LanguageFormatting.INSTANCE.addExplicitExtension(KotlinLanguage.INSTANCE, new KotlinFormattingModelBuilder());
@@ -334,15 +333,18 @@ public class LanguageExtensionsRegistrar {
         debug(COMPONENT, "Registered Kotlin");
     }
 
-    private static void tryRegisterKotlinPreFormatProcessor(ExtensionsAreaImpl extensionArea, Disposable rootDisposable) {
+    private static void tryRegisterKotlinPreFormatProcessor(ExtensionsAreaImpl extensionArea,
+                                                            Disposable rootDisposable) {
         tryRegisterExtension(extensionArea, rootDisposable, "com.intellij.preFormatProcessor",
-                "org.jetbrains.kotlin.idea.formatter.KotlinPreFormatProcessor", "KotlinPreFormatProcessor");
+                             "org.jetbrains.kotlin.idea.formatter.KotlinPreFormatProcessor",
+                             "KotlinPreFormatProcessor");
     }
 
-    private static void tryRegisterKotlinCodeStyleProvider(ExtensionsAreaImpl extensionArea, Disposable rootDisposable) {
+    private static void tryRegisterKotlinCodeStyleProvider(ExtensionsAreaImpl extensionArea,
+                                                           Disposable rootDisposable) {
         tryRegisterExtension(extensionArea, rootDisposable, "com.intellij.langCodeStyleSettingsProvider",
-                "org.jetbrains.kotlin.idea.formatter.KotlinLanguageCodeStyleSettingsProvider",
-                "KotlinLanguageCodeStyleSettingsProvider");
+                             "org.jetbrains.kotlin.idea.formatter.KotlinLanguageCodeStyleSettingsProvider",
+                             "KotlinLanguageCodeStyleSettingsProvider");
     }
 
     /**
@@ -350,8 +352,8 @@ public class LanguageExtensionsRegistrar {
      * named {@code extensionPointName}, if that point exists in this IDEA version.
      */
     private static void tryRegisterExtension(ExtensionsAreaImpl extensionArea, Disposable rootDisposable,
-                                              String extensionPointName, String implementationClassName,
-                                              String logLabel) {
+                                             String extensionPointName, String implementationClassName,
+                                             String logLabel) {
         try {
             var instance = Class.forName(implementationClassName).getDeclaredConstructor().newInstance();
 
@@ -371,12 +373,13 @@ public class LanguageExtensionsRegistrar {
 
     private static void tryRegisterElementTypeConverterGeneric(Language language) {
         tryRegisterViaSingletonRegistry("com.intellij.platform.syntax.psi.ElementTypeConverters", "getInstance",
-                language, "com.intellij.platform.syntax.psi.CommonElementTypeConverterFactory", "ElementTypeConverter");
+                                        language, "com.intellij.platform.syntax.psi.CommonElementTypeConverterFactory",
+                                        "ElementTypeConverter");
     }
 
     private static void tryRegisterSyntaxDefinition(Language language, String className) {
         tryRegisterViaSingletonRegistry("com.intellij.platform.syntax.psi.LanguageSyntaxDefinitions", "getINSTANCE",
-                language, className, "SyntaxDefinition");
+                                        language, className, "SyntaxDefinition");
     }
 
     private static void tryRegisterElementTypeConverterSimple(Language language, String className) {
@@ -390,8 +393,7 @@ public class LanguageExtensionsRegistrar {
      * Covers the several IDEA 2025.x syntax/conversion registries that all share this exact shape.
      */
     private static void tryRegisterViaSingletonRegistry(String registryClassName, String accessorMethodName,
-                                                          Language language, String extensionClassName,
-                                                          String logLabel) {
+                                                        Language language, String extensionClassName, String logLabel) {
         try {
             var registry = Class.forName(registryClassName).getDeclaredMethod(accessorMethodName).invoke(null);
             var instance = Class.forName(extensionClassName).getDeclaredConstructor().newInstance();
@@ -416,7 +418,8 @@ public class LanguageExtensionsRegistrar {
             var languageGetConverterMethod = converterFactoryClass.getMethod("getElementTypeConverter");
             var languageConverter = languageGetConverterMethod.invoke(languageFactory);
 
-            var commonFactoryClass = Class.forName("com.intellij.platform.syntax.psi.CommonElementTypeConverterFactory");
+            var commonFactoryClass =
+                    Class.forName("com.intellij.platform.syntax.psi.CommonElementTypeConverterFactory");
             var commonFactory = commonFactoryClass.getDeclaredConstructor().newInstance();
             var commonGetConverterMethod = commonFactoryClass.getMethod("getElementTypeConverter");
             var commonConverter = commonGetConverterMethod.invoke(commonFactory);
@@ -433,7 +436,8 @@ public class LanguageExtensionsRegistrar {
                 }
                 return null;
             };
-            var factoryProxy = Proxy.newProxyInstance(factoryClass.getClassLoader(), new Class<?>[]{factoryClass}, handler);
+            var factoryProxy =
+                    Proxy.newProxyInstance(factoryClass.getClassLoader(), new Class<?>[] {factoryClass}, handler);
 
             var addMethod = converters.getClass().getMethod("addExplicitExtension", Language.class, Object.class);
             addMethod.invoke(converters, language, factoryProxy);

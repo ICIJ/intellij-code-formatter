@@ -1,7 +1,6 @@
 package com.intellij.formatter.bootstrap;
 
 import lombok.experimental.UtilityClass;
-
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +24,6 @@ import java.time.format.DateTimeFormatter;
  */
 @UtilityClass
 public class BootstrapLogger {
-
     private static final boolean DEBUG_ENABLED = Boolean.getBoolean("formatter.debug");
     private static final boolean TRACE_ENABLED = Boolean.getBoolean("formatter.trace");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");

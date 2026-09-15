@@ -7,7 +7,6 @@ import com.intellij.openapi.extensions.impl.ExtensionsAreaImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import lombok.experimental.UtilityClass;
-
 import static com.intellij.formatter.bootstrap.BootstrapLogger.debug;
 
 /**
@@ -39,18 +38,13 @@ import static com.intellij.formatter.bootstrap.BootstrapLogger.debug;
  */
 @UtilityClass
 public class FormatterBootstrap {
-
     private static final String COMPONENT = "Bootstrap";
-
     /** Flag indicating whether the bootstrap has been initialized. */
     private static volatile boolean initialized = false;
-
     /** Root disposable for managing lifecycle of all created resources. */
     private static Disposable rootDisposable;
-
     /** The mock application instance. */
     private static HeadlessMockApplication application;
-
     /** The mock project instance. */
     private static MockProject project;
 
@@ -113,11 +107,7 @@ public class FormatterBootstrap {
         var group = LanguageExtensionsRegistrar.getLanguageGroupForFile(fileName);
         if (group != null && !LanguageExtensionsRegistrar.isLanguageRegistered(group)) {
             debug(COMPONENT, "Loading language for: " + fileName);
-            LanguageExtensionsRegistrar.registerLanguageGroup(
-                    group,
-                    application.getExtensionArea(),
-                    rootDisposable
-            );
+            LanguageExtensionsRegistrar.registerLanguageGroup(group, application.getExtensionArea(), rootDisposable);
         }
     }
 

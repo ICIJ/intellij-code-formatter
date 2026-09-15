@@ -5,12 +5,10 @@ import com.intellij.psi.codeStyle.ProjectCodeStyleSettingsManager;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import static com.intellij.formatter.bootstrap.FormatterBootstrap.getProject;
 import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
 
@@ -36,7 +34,6 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  * @see com.intellij.formatter.core.StandaloneFormatter
  */
 public final class CodeStyleLoader {
-
     /**
      * Path, on this jar's own classpath, of the ICIJ code style shipped in
      * {@code formatter-core/src/main/resources/icij-codestyle.xml}.
@@ -84,8 +81,7 @@ public final class CodeStyleLoader {
         System.err.println("Loading bundled ICIJ code style");
         try (var in = CodeStyleLoader.class.getResourceAsStream(BUNDLED_STYLE_RESOURCE)) {
             if (in == null) {
-                throw new IOException(
-                        "Bundled " + BUNDLED_STYLE_RESOURCE + " resource not found on the classpath");
+                throw new IOException("Bundled " + BUNDLED_STYLE_RESOURCE + " resource not found on the classpath");
             }
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
