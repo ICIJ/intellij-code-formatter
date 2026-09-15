@@ -42,6 +42,25 @@ public class BootstrapLogger {
     }
 
     /**
+     * Logs a debug message with the full stack trace of {@code throwable}. Only printed
+     * when {@code -Dformatter.debug=true} - unlike {@link #warn(String, String, Throwable)}
+     * and {@link #error(String, String, Throwable)}, the message line itself is gated too,
+     * so this never duplicates a failure a caller already reports through its own channel
+     * (e.g. a {@code DirectoryFormatter} failure report); it only makes the original cause
+     * recoverable on demand.
+     *
+     * @param component the component name
+     * @param message   the debug message
+     * @param throwable the exception being logged
+     */
+    public static void debug(String component, String message, Throwable throwable) {
+        if (DEBUG_ENABLED) {
+            log("DEBUG", component, message);
+            throwable.printStackTrace(OUT);
+        }
+    }
+
+    /**
      * Logs a trace message for detailed diagnostics.
      * Only printed when {@code -Dformatter.trace=true}.
      *

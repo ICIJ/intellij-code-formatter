@@ -1,5 +1,6 @@
 package com.intellij.formatter.config;
 
+import com.intellij.formatter.bootstrap.BootstrapLogger;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.psi.codeStyle.ProjectCodeStyleSettingsManager;
 import org.jdom.Element;
@@ -34,6 +35,7 @@ import static com.intellij.formatter.bootstrap.FormatterBootstrap.initialize;
  * @see com.intellij.formatter.core.StandaloneFormatter
  */
 public final class CodeStyleLoader {
+    private static final String COMPONENT = "CodeStyleLoader";
     /**
      * Path, on this jar's own classpath, of the ICIJ code style shipped in
      * {@code formatter-core/src/main/resources/icij-codestyle.xml}.
@@ -79,7 +81,7 @@ public final class CodeStyleLoader {
      * @throws IOException if the file cannot be read, parsed, or applied
      */
     String loadFromFile(@NotNull String filePath) throws IOException {
-        System.err.println("Loading code style from: " + filePath);
+        BootstrapLogger.debug(COMPONENT, "Loading code style from: " + filePath);
         var path = Path.of(filePath);
         if (!Files.exists(path)) {
             throw new IOException("Code style file not found: " + filePath);
@@ -97,7 +99,7 @@ public final class CodeStyleLoader {
      * @throws IOException if the bundled resource is missing or fails to parse
      */
     String loadBundled() throws IOException {
-        System.err.println("Loading bundled ICIJ code style");
+        BootstrapLogger.debug(COMPONENT, "Loading bundled ICIJ code style");
         try (var in = CodeStyleLoader.class.getResourceAsStream(BUNDLED_STYLE_RESOURCE)) {
             if (in == null) {
                 throw new IOException("Bundled " + BUNDLED_STYLE_RESOURCE + " resource not found on the classpath");

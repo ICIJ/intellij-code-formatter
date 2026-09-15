@@ -1,5 +1,6 @@
 package com.intellij.formatter.core;
 
+import com.intellij.formatter.bootstrap.BootstrapLogger;
 import lombok.experimental.UtilityClass;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +14,8 @@ import java.util.LinkedHashMap;
  */
 @UtilityClass
 public class DirectoryFormatter {
+    private static final String COMPONENT = "DirectoryFormatter";
+
     /**
      * Reformats every {@code .java} file found under {@code directory} in place,
      * writing back only files whose content actually changed.
@@ -45,8 +48,10 @@ public class DirectoryFormatter {
                     }
                 }
             } catch (FormattingException e) {
+                BootstrapLogger.debug(COMPONENT, "Formatting failed for " + file, e);
                 failures.put(file, e.getMessage());
             } catch (IOException e) {
+                BootstrapLogger.debug(COMPONENT, "I/O error reading/writing " + file, e);
                 failures.put(file, "I/O error: " + e.getMessage());
             }
         }
