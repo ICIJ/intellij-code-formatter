@@ -49,6 +49,25 @@ public final class CodeStyleLoader {
         }
     }
 
+    public CodeStyleLoader applyFromXml() throws IOException, JDOMException {
+        initialize();
+        applySettings(JDOMUtil.load(content));
+        return this;
+    }
+
+    /**
+     * Reverts to IntelliJ's default code style scheme, undoing any style previously
+     * applied via {@link #loadFromFile(String)}.
+     */
+    public CodeStyleLoader resetToDefault() {
+        var project = getProject();
+        var settingsManager = project.getService(ProjectCodeStyleSettingsManager.class);
+        if (settingsManager != null) {
+            settingsManager.USE_PER_PROJECT_SETTINGS = false;
+        }
+        return this;
+    }
+
     /**
      * Loads code style settings from the specified XML file and applies them to the project.
      *
@@ -59,7 +78,7 @@ public final class CodeStyleLoader {
      * @param filePath the absolute path to the code style XML file
      * @throws IOException if the file cannot be read, parsed, or applied
      */
-    public String loadFromFile(@NotNull String filePath) throws IOException {
+    String loadFromFile(@NotNull String filePath) throws IOException {
         System.err.println("Loading code style from: " + filePath);
         var path = Path.of(filePath);
         if (!Files.exists(path)) {
@@ -87,12 +106,6 @@ public final class CodeStyleLoader {
         }
     }
 
-    public CodeStyleLoader applyFromXml() throws IOException, JDOMException {
-        initialize();
-        applySettings(JDOMUtil.load(content));
-        return this;
-    }
-
     private void applySettings(Element rootElement) {
         var project = getProject();
         var settingsManager = project.getService(ProjectCodeStyleSettingsManager.class);
@@ -114,19 +127,6 @@ public final class CodeStyleLoader {
         // Without this, CodeStyleSettingsManager.getCurrentSettings() ignores the settings
         // just registered above and falls back to the default IntelliJ scheme.
         settingsManager.USE_PER_PROJECT_SETTINGS = true;
-    }
-
-    /**
-     * Reverts to IntelliJ's default code style scheme, undoing any style previously
-     * applied via {@link #loadFromFile(String)}.
-     */
-    public CodeStyleLoader resetToDefault() {
-        var project = getProject();
-        var settingsManager = project.getService(ProjectCodeStyleSettingsManager.class);
-        if (settingsManager != null) {
-            settingsManager.USE_PER_PROJECT_SETTINGS = false;
-        }
-        return this;
     }
 
     private Element findCodeStyleElement(Element root) {
